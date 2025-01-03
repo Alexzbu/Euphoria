@@ -1,0 +1,15 @@
+{
+  "name": "euphoria",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Clothing e-commerce storefront — Express + React monorepo",
+  "license": "MIT",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=22"
+  }
+}

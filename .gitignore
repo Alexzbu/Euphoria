@@ -1,0 +1,36 @@
+# dependencies
+node_modules/
+
+# build output — never tracked, always reproducible from source
+dist/
+build/
+.vite/
+*.tsbuildinfo
+
+# test artifacts
+coverage/
+playwright-report/
+test-results/
+blob-report/
+.playwright/
+
+# environment — only the examples are tracked
+.env
+.env.*
+!.env.example
+
+# local reference material and planning notes
+Doc/
+
+# uploaded media (served from disk in local dev)
+uploads/
+
+# logs
+*.log
+npm-debug.log*
+
+# editors and OS
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
