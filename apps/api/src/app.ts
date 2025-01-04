@@ -1,6 +1,7 @@
 import express, { type Express } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import { env } from './config/env.js';
 
 export function createApp(): Express {
   const app = express();
@@ -8,7 +9,7 @@ export function createApp(): Express {
   app.use(helmet());
   app.use(
     cors({
-      origin: process.env.WEB_ORIGIN,
+      origin: env.WEB_ORIGIN,
       credentials: true,
     }),
   );
