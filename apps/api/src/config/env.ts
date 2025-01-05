@@ -9,6 +9,7 @@ const envSchema = z.object({
   PORT: z.coerce.number().int().positive().max(65535).default(3000),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
   WEB_ORIGIN: z.string().url(),
+  MONGODB_URI: z.string().url().startsWith('mongodb'),
 });
 
 export type Env = z.infer<typeof envSchema>;

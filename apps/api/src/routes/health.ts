@@ -1,6 +1,7 @@
 import { Router } from 'express';
+import { getConnectionState, type ConnectionState } from '../db/connection.js';
 
-export type DependencyStatus = 'up' | 'down' | 'not_configured';
+export type DependencyStatus = ConnectionState;
 
 export interface HealthResponse {
   status: 'ok' | 'degraded';
@@ -14,15 +15,17 @@ export interface HealthResponse {
 export const healthRouter: Router = Router();
 
 // unauthenticated on purpose, container orchestrators and uptime monitors have no
-// credentials. reports liveness facts only, never configuration.
-// TODO: the database check is a placeholder until the mongo connection lands.
+// credentials. reports liveness facts only, never configuration. a degraded database
+// answers 503, so a load balancer pulls this instance out of rotation instead of
+// routing traffic it can't serve.
 healthRouter.get('/health', (_req, res) => {
+  const database = getConnectionState();
   const body: HealthResponse = {
-    status: 'ok',
+    status: database === 'up' ? 'ok' : 'degraded',
     uptime: Math.floor(process.uptime()),
     timestamp: new Date().toISOString(),
-    checks: { database: 'not_configured' },
+    checks: { database },
   };
 
-  res.json(body);
+  res.status(body.status === 'ok' ? 200 : 503).json(body);
 });
