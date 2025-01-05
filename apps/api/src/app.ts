@@ -5,6 +5,7 @@ import { env } from './config/env.js';
 import { requestLogger } from './middleware/requestLogger.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
+import { healthRouter } from './routes/health.js';
 
 export function createApp(): Express {
   const app = express();
@@ -21,6 +22,8 @@ export function createApp(): Express {
 
   app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: false }));
+
+  app.use(healthRouter);
 
   // nothing matched above, so it doesn't exist
   app.use(notFoundHandler);
