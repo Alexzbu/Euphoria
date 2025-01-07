@@ -41,4 +41,10 @@ const variantSchema = new Schema<Variant>(
 // trusting every write path to remember.
 variantSchema.index({ product: 1, color: 1, size: 1 }, { unique: true });
 
+// filtering by colour or size means finding variants first and mapping back to
+// products. no separate { product: 1 } index needed, the unique one above already
+// leads with it.
+variantSchema.index({ color: 1, product: 1 });
+variantSchema.index({ size: 1, product: 1 });
+
 export const Variant: Model<Variant> = model<Variant>('Variant', variantSchema);

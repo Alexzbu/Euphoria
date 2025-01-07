@@ -62,7 +62,24 @@ productSchema.pre('validate', function (next) {
   next();
 });
 
+// every listing filters on isActive first so it leads each compound index.
+// priceCents trails: it's used for ranges and sorting, and a range has to come last.
+productSchema.index({ isActive: 1, createdAt: -1 });
+productSchema.index({ isActive: 1, category: 1, priceCents: 1 });
+productSchema.index({ isActive: 1, brand: 1, priceCents: 1 });
+productSchema.index({ isActive: 1, sex: 1, priceCents: 1 });
+productSchema.index({ isActive: 1, priceCents: 1 });
+
+// a text index is the only thing that makes searching description practical, an
+// unanchored regex scans everything. name weighted above description so titles win.
+productSchema.index(
+  { name: 'text', description: 'text' },
+  { weights: { name: 10, description: 1 }, name: 'product_search' },
+);
+
 // not unique, two brands can both sell a "classic tee". slugs are for urls, not identity.
+productSchema.index({ slug: 1 });
+
 productSchema.virtual('variants', {
   ref: 'Variant',
   localField: '_id',
