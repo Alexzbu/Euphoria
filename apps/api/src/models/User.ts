@@ -63,19 +63,25 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
+interface PasswordUpdate {
+  password?: string;
+  $set?: { password?: string };
+  $setOnInsert?: { password?: string };
+}
+
 // password changes also arrive through findOneAndUpdate, and without this they'd
-// go into the database in the clear.
+// go into the database in the clear. all three shapes need covering, $setOnInsert
+// in particular is how an upserting seed creates a user.
 userSchema.pre('findOneAndUpdate', async function (next) {
-  const update = this.getUpdate() as { password?: string; $set?: { password?: string } } | null;
+  const update = this.getUpdate() as PasswordUpdate | null;
   if (!update) {
     next();
     return;
   }
-  if (typeof update.password === 'string') {
-    update.password = await bcrypt.hash(update.password, BCRYPT_ROUNDS);
-  }
-  if (typeof update.$set?.password === 'string') {
-    update.$set.password = await bcrypt.hash(update.$set.password, BCRYPT_ROUNDS);
+  for (const holder of [update, update.$set, update.$setOnInsert]) {
+    if (holder && typeof holder.password === 'string') {
+      holder.password = await bcrypt.hash(holder.password, BCRYPT_ROUNDS);
+    }
   }
   next();
 });
