@@ -10,6 +10,11 @@ const envSchema = z.object({
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
   WEB_ORIGIN: z.string().url(),
   MONGODB_URI: z.string().url().startsWith('mongodb'),
+
+  // short secrets are worth brute-forcing offline: grind candidates against one
+  // signed token, then mint tokens for anyone. 32 chars is the floor.
+  JWT_ACCESS_SECRET: z.string().min(32, 'JWT_ACCESS_SECRET must be at least 32 characters'),
+  JWT_ACCESS_TTL: z.string().default('15m'),
 });
 
 export type Env = z.infer<typeof envSchema>;
