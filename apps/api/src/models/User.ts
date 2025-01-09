@@ -1,7 +1,5 @@
-import bcrypt from 'bcrypt';
 import { Schema, model, type HydratedDocument, type Model, type Types } from 'mongoose';
-
-export const BCRYPT_ROUNDS = 12;
+import { hashPassword, verifyPassword } from '../services/passwordService.js';
 
 export interface User {
   email: string;
@@ -59,7 +57,7 @@ userSchema.pre('save', async function (next) {
     next();
     return;
   }
-  this.password = await bcrypt.hash(this.password, BCRYPT_ROUNDS);
+  this.password = await hashPassword(this.password);
   next();
 });
 
@@ -80,17 +78,14 @@ userSchema.pre('findOneAndUpdate', async function (next) {
   }
   for (const holder of [update, update.$set, update.$setOnInsert]) {
     if (holder && typeof holder.password === 'string') {
-      holder.password = await bcrypt.hash(holder.password, BCRYPT_ROUNDS);
+      holder.password = await hashPassword(holder.password);
     }
   }
   next();
 });
 
 userSchema.method('comparePassword', async function (candidate: string): Promise<boolean> {
-  // a google-only account has no password, so compare has to answer false rather
-  // than throw
-  if (!this.password) return false;
-  return bcrypt.compare(candidate, this.password);
+  return verifyPassword(candidate, this.password);
 });
 
 userSchema.method('isLocked', function (): boolean {
