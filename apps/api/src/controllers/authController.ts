@@ -1,0 +1,59 @@
+import type { Request, Response } from 'express';
+import type { TypeOf, ZodTypeAny } from 'zod';
+import * as authService from '../services/authService.js';
+import { revokeRefreshToken } from '../services/refreshTokenService.js';
+import { verifyAccessToken } from '../services/tokenService.js';
+import { loginSchema, registerSchema } from '../schemas/auth.js';
+import { badRequest, unauthorized } from '../utils/AppError.js';
+import { clearRefreshCookie, readRefreshCookie, setRefreshCookie } from '../utils/cookies.js';
+import type { AuthResult } from '../services/authService.js';
+
+function respondWithSession(res: Response, result: AuthResult, status = 200): void {
+  setRefreshCookie(res, result.refreshToken, result.refreshExpiresAt);
+  res.status(status).json({ accessToken: result.accessToken, user: result.user });
+}
+
+function parseBody<S extends ZodTypeAny>(schema: S, body: unknown): TypeOf<S> {
+  const parsed = schema.safeParse(body);
+  if (!parsed.success) {
+    throw badRequest('Request body is not valid', parsed.error.issues);
+  }
+  return parsed.data;
+}
+
+export async function registerHandler(req: Request, res: Response): Promise<void> {
+  const { email, password } = parseBody(registerSchema, req.body);
+  respondWithSession(res, await authService.register(email, password), 201);
+}
+
+export async function loginHandler(req: Request, res: Response): Promise<void> {
+  const { email, password } = parseBody(loginSchema, req.body);
+  respondWithSession(res, await authService.login(email, password));
+}
+
+export async function refreshHandler(req: Request, res: Response): Promise<void> {
+  const token = readRefreshCookie(req.cookies as Record<string, unknown>);
+  if (!token) throw unauthorized('No refresh token was provided');
+
+  respondWithSession(res, await authService.refresh(token));
+}
+
+// 204 whether or not a token was there. sign-out is a request to end up signed out
+// and the caller gets there either way.
+export async function logoutHandler(req: Request, res: Response): Promise<void> {
+  const token = readRefreshCookie(req.cookies as Record<string, unknown>);
+  if (token) await revokeRefreshToken(token);
+
+  clearRefreshCookie(res);
+  res.status(204).send();
+}
+
+export async function meHandler(req: Request, res: Response): Promise<void> {
+  const header = req.get('authorization');
+  if (!header?.startsWith('Bearer ')) {
+    throw unauthorized('Authentication required');
+  }
+
+  const claims = verifyAccessToken(header.slice('Bearer '.length));
+  res.json({ user: await authService.currentUser(claims.sub) });
+}

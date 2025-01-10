@@ -7,6 +7,7 @@ import { requestLogger } from './middleware/requestLogger.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
 import { healthRouter } from './routes/health.js';
+import { authRouter } from './routes/auth.js';
 
 export function createApp(): Express {
   const app = express();
@@ -25,7 +26,9 @@ export function createApp(): Express {
   app.use(express.urlencoded({ extended: false }));
   app.use(cookieParser());
 
+  // outside /api, probes shouldn't have to know the api's routing conventions
   app.use(healthRouter);
+  app.use('/api/auth', authRouter);
 
   // nothing matched above, so it doesn't exist
   app.use(notFoundHandler);
