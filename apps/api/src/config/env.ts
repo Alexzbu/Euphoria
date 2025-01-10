@@ -4,19 +4,36 @@ import { z } from 'zod';
 // parsed once, here, and the process refuses to start if it doesn't match. reading
 // process.env at each use site turns a missing secret into the string "undefined",
 // which signs and verifies tokens quite happily.
-const envSchema = z.object({
-  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
-  PORT: z.coerce.number().int().positive().max(65535).default(3000),
-  LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
-  WEB_ORIGIN: z.string().url(),
-  MONGODB_URI: z.string().url().startsWith('mongodb'),
+const booleanFlag = (fallback: 'true' | 'false') =>
+  z
+    .enum(['true', 'false'])
+    .default(fallback)
+    .transform((value) => value === 'true');
 
-  // short secrets are worth brute-forcing offline: grind candidates against one
-  // signed token, then mint tokens for anyone. 32 chars is the floor.
-  JWT_ACCESS_SECRET: z.string().min(32, 'JWT_ACCESS_SECRET must be at least 32 characters'),
-  JWT_ACCESS_TTL: z.string().default('15m'),
-  REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().positive().max(365).default(30),
-});
+const envSchema = z
+  .object({
+    NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+    PORT: z.coerce.number().int().positive().max(65535).default(3000),
+    LOG_LEVEL: z
+      .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
+      .default('info'),
+    WEB_ORIGIN: z.string().url(),
+    MONGODB_URI: z.string().url().startsWith('mongodb'),
+
+    // every non-empty string is truthy, so Boolean('false') is true. only take the two literals.
+    JWT_ACCESS_SECRET: z.string().min(32, 'JWT_ACCESS_SECRET must be at least 32 characters'),
+    JWT_ACCESS_TTL: z.string().default('15m'),
+    REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().positive().max(365).default(30),
+
+    COOKIE_SECURE: booleanFlag('true'),
+    COOKIE_SAME_SITE: z.enum(['strict', 'lax', 'none']).default('lax'),
+    COOKIE_DOMAIN: z.string().min(1).optional(),
+  })
+  // otherwise the server starts fine and dies at the first upload
+  .refine((cfg) => !(cfg.COOKIE_SAME_SITE === 'none' && !cfg.COOKIE_SECURE), {
+    message: 'COOKIE_SAME_SITE=none requires COOKIE_SECURE=true',
+    path: ['COOKIE_SAME_SITE'],
+  });
 
 export type Env = z.infer<typeof envSchema>;
 
