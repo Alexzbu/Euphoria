@@ -1,4 +1,5 @@
 import type { AccessTokenClaims } from '../services/tokenService.js';
+import type { ValidatedRequest } from '../middleware/validate.js';
 
 declare global {
   namespace Express {
@@ -7,6 +8,10 @@ declare global {
       // passport owns during the oauth round trip. optional because a route that
       // hasn't run requireAuth genuinely has no identity.
       auth?: AccessTokenClaims;
+
+      // set by validate(), read back through validated(). separate from
+      // params/query/body because express 5 makes `query` read-only.
+      validated?: ValidatedRequest;
     }
   }
 }
