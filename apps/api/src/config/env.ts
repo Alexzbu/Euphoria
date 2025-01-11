@@ -25,6 +25,9 @@ const envSchema = z
     JWT_ACCESS_TTL: z.string().default('15m'),
     REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().positive().max(365).default(30),
 
+    LOGIN_MAX_ATTEMPTS: z.coerce.number().int().min(1).max(100).default(5),
+    LOGIN_LOCKOUT_MINUTES: z.coerce.number().int().min(1).max(1440).default(15),
+
     COOKIE_SECURE: booleanFlag('true'),
     COOKIE_SAME_SITE: z.enum(['strict', 'lax', 'none']).default('lax'),
     COOKIE_DOMAIN: z.string().min(1).optional(),

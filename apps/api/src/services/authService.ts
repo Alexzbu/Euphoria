@@ -1,7 +1,10 @@
 import type { Types } from 'mongoose';
+import { env } from '../config/env.js';
+import { logger } from '../config/logger.js';
 import { Role, type RoleName } from '../models/Role.js';
 import { User, type UserDocument } from '../models/User.js';
-import { AppError, conflict, unauthorized } from '../utils/AppError.js';
+import { AppError, conflict, tooManyRequests, unauthorized } from '../utils/AppError.js';
+import { equaliseVerificationTiming } from './passwordService.js';
 import { issueRefreshToken, rotateRefreshToken } from './refreshTokenService.js';
 import { signAccessToken } from './tokenService.js';
 
@@ -97,13 +100,56 @@ export async function issueSessionFor(user: UserDocument): Promise<AuthResult> {
   return completeSignIn(user);
 }
 
+// an expired lock starts the count again from this attempt, otherwise one stray
+// failure a month later would trip it immediately
+async function registerFailedAttempt(user: UserDocument): Promise<void> {
+  const lockExpired = user.lockUntil !== undefined && user.lockUntil.getTime() <= Date.now();
+  const attempts = lockExpired ? 1 : user.failedLoginAttempts + 1;
+
+  user.failedLoginAttempts = attempts;
+  user.lockUntil = undefined;
+
+  if (attempts >= env.LOGIN_MAX_ATTEMPTS) {
+    user.lockUntil = new Date(Date.now() + env.LOGIN_LOCKOUT_MINUTES * 60 * 1000);
+    user.failedLoginAttempts = 0;
+    logger.warn({ user: user._id.toString() }, 'Account locked after repeated failed sign-ins');
+  }
+
+  await user.save();
+}
+
 export async function login(email: string, password: string): Promise<AuthResult> {
   const user = await User.findOne({ email }).select('+password');
 
+  if (!user) {
+    // spend the time a real comparison would have taken before answering, so the
+    // response time doesn't reveal whether the address is registered
+    await equaliseVerificationTiming(password);
+    throw unauthorized('Invalid email or password');
+  }
+
+  // checked before the password, deliberately. verifying first would let someone keep
+  // testing candidates against a locked account, which is the one thing the lock is
+  // for. it does tell a caller the address is registered, which is a real trade-off,
+  // accepted because getting here costs a burst of failures against one address.
+  if (user.isLocked()) {
+    throw tooManyRequests(
+      `Too many failed sign-in attempts. Try again in ${String(env.LOGIN_LOCKOUT_MINUTES)} minutes.`,
+    );
+  }
+
   // one message and one status for both "no such account" and "wrong password".
   // splitting them turns the login form into an oracle for which emails exist.
-  if (!user || !(await user.comparePassword(password))) {
+  if (!(await user.comparePassword(password))) {
+    await registerFailedAttempt(user);
     throw unauthorized('Invalid email or password');
+  }
+
+  // a success clears the history, the counter measures consecutive failures
+  if (user.failedLoginAttempts !== 0 || user.lockUntil !== undefined) {
+    user.failedLoginAttempts = 0;
+    user.lockUntil = undefined;
+    await user.save();
   }
 
   return completeSignIn(user);
