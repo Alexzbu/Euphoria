@@ -2,7 +2,6 @@ import type { Request, Response } from 'express';
 import type { TypeOf, ZodTypeAny } from 'zod';
 import * as authService from '../services/authService.js';
 import { revokeRefreshToken } from '../services/refreshTokenService.js';
-import { verifyAccessToken } from '../services/tokenService.js';
 import { loginSchema, registerSchema } from '../schemas/auth.js';
 import { badRequest, unauthorized } from '../utils/AppError.js';
 import { clearRefreshCookie, readRefreshCookie, setRefreshCookie } from '../utils/cookies.js';
@@ -62,12 +61,9 @@ export async function googleCallbackHandler(req: Request, res: Response): Promis
   res.redirect(`${env.WEB_ORIGIN}/auth/callback`);
 }
 
+// behind requireAuth, so the claims are guaranteed present
 export async function meHandler(req: Request, res: Response): Promise<void> {
-  const header = req.get('authorization');
-  if (!header?.startsWith('Bearer ')) {
-    throw unauthorized('Authentication required');
-  }
+  if (!req.auth) throw unauthorized('Authentication required');
 
-  const claims = verifyAccessToken(header.slice('Bearer '.length));
-  res.json({ user: await authService.currentUser(claims.sub) });
+  res.json({ user: await authService.currentUser(req.auth.sub) });
 }
