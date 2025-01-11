@@ -68,6 +68,35 @@ export async function register(email: string, password: string): Promise<AuthRes
   }
 }
 
+// the role is looked up by name and stored as a reference, same as a password
+// registration. reading a role off an unpopulated reference finds an objectid, and
+// the user ends up with no usable role, which only surfaces later as a permission
+// check that denies everything.
+export async function signInWithGoogle(googleId: string, email: string): Promise<UserDocument> {
+  const existing = await User.findOne({ $or: [{ googleId }, { email }] });
+
+  if (existing) {
+    // same person, new door. link the identity instead of refusing, so google
+    // sign-in doesn't make a second account for someone who registered with a password.
+    if (!existing.googleId) {
+      existing.googleId = googleId;
+      await existing.save();
+    }
+    return existing;
+  }
+
+  const customerRole = await Role.findOne({ name: 'CUSTOMER' }).lean();
+  if (!customerRole) {
+    throw new AppError(500, 'Default role is not configured', 'ROLE_MISSING');
+  }
+
+  return User.create({ email, googleId, role: customerRole._id });
+}
+
+export async function issueSessionFor(user: UserDocument): Promise<AuthResult> {
+  return completeSignIn(user);
+}
+
 export async function login(email: string, password: string): Promise<AuthResult> {
   const user = await User.findOne({ email }).select('+password');
 

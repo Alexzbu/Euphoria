@@ -7,6 +7,8 @@ import { loginSchema, registerSchema } from '../schemas/auth.js';
 import { badRequest, unauthorized } from '../utils/AppError.js';
 import { clearRefreshCookie, readRefreshCookie, setRefreshCookie } from '../utils/cookies.js';
 import type { AuthResult } from '../services/authService.js';
+import type { UserDocument } from '../models/User.js';
+import { env } from '../config/env.js';
 
 function respondWithSession(res: Response, result: AuthResult, status = 200): void {
   setRefreshCookie(res, result.refreshToken, result.refreshExpiresAt);
@@ -46,6 +48,18 @@ export async function logoutHandler(req: Request, res: Response): Promise<void> 
 
   clearRefreshCookie(res);
   res.status(204).send();
+}
+
+// the access token deliberately doesn't travel in the redirect url: query strings
+// land in browser history, server logs, and the Referer of the next request. the
+// cookie is httpOnly and scoped.
+export async function googleCallbackHandler(req: Request, res: Response): Promise<void> {
+  const user = req.user as UserDocument | undefined;
+  if (!user) throw unauthorized('Google sign-in did not return an account');
+
+  const result = await authService.issueSessionFor(user);
+  setRefreshCookie(res, result.refreshToken, result.refreshExpiresAt);
+  res.redirect(`${env.WEB_ORIGIN}/auth/callback`);
 }
 
 export async function meHandler(req: Request, res: Response): Promise<void> {
