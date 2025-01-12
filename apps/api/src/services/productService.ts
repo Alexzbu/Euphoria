@@ -4,11 +4,21 @@ import { Variant } from '../models/Variant.js';
 import { Brand, Category, Color, Sex, Size, type Taxonomy } from '../models/taxonomy.js';
 import type { ListProductsQuery } from '../schemas/product.js';
 import { escapeRegExp } from '../utils/escapeRegExp.js';
+import { compareSizeSlugs } from '../utils/sizeOrder.js';
+import { notFound } from '../utils/AppError.js';
 
 interface TaxonomyLean {
   _id: Types.ObjectId;
   name: string;
   slug: string;
+}
+
+interface VariantRow {
+  _id: Types.ObjectId;
+  sku: string;
+  stock: number;
+  color: TaxonomyLean;
+  size: TaxonomyLean;
 }
 
 interface ProductRow {
@@ -41,6 +51,19 @@ export interface ProductSummary {
   category: TaxonomyRef;
   sex: TaxonomyRef;
   createdAt: string;
+}
+
+export interface VariantOption {
+  id: string;
+  sku: string;
+  stock: number;
+  inStock: boolean;
+  color: TaxonomyRef;
+  size: TaxonomyRef;
+}
+
+export interface ProductDetail extends ProductSummary {
+  variants: VariantOption[];
 }
 
 export interface ProductPage {
@@ -202,4 +225,47 @@ export async function listProducts(query: ListProductsQuery): Promise<ProductPag
 
   if (search) return searchProducts(filter, search, page, limit);
   return findPage(filter, page, limit);
+}
+
+const VARIANTS = {
+  path: 'variants',
+  select: 'sku stock color size',
+  populate: [
+    { path: 'color', select: 'name slug' },
+    { path: 'size', select: 'name slug' },
+  ],
+};
+
+function toVariantOption(row: VariantRow): VariantOption {
+  return {
+    id: row._id.toString(),
+    sku: row.sku,
+    stock: row.stock,
+    // a size chip is either selectable or greyed out, and that shouldn't depend on
+    // every client re-deriving it from a number the same way
+    inStock: row.stock > 0,
+    color: toRef(row.color),
+    size: toRef(row.size),
+  };
+}
+
+// variants come back with the product instead of from a second endpoint. a product
+// page can't render a size picker without them.
+export async function getProduct(id: string): Promise<ProductDetail> {
+  const row = await Product.findOne({ _id: id, ...visible })
+    .select(SUMMARY_FIELDS)
+    .populate<PopulatedReferences>(REFERENCES)
+    .populate<{ variants: VariantRow[] }>(VARIANTS)
+    .lean();
+
+  if (!row) throw notFound('Product not found');
+
+  const variants = row.variants
+    .sort(
+      (a, b) =>
+        a.color.name.localeCompare(b.color.name) || compareSizeSlugs(a.size.slug, b.size.slug),
+    )
+    .map(toVariantOption);
+
+  return { ...toSummary(row), variants };
 }
