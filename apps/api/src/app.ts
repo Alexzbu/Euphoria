@@ -10,6 +10,7 @@ import { healthRouter } from './routes/health.js';
 import { authRouter } from './routes/auth.js';
 import { productRouter } from './routes/products.js';
 import { taxonomyRouter } from './routes/taxonomy.js';
+import { cartRouter } from './routes/cart.js';
 
 export function createApp(): Express {
   const app = express();
@@ -33,6 +34,7 @@ export function createApp(): Express {
   app.use('/api/auth', authRouter);
   app.use('/api/products', productRouter);
   app.use('/api/taxonomy', taxonomyRouter);
+  app.use('/api/cart', cartRouter);
 
   // nothing matched above, so it doesn't exist
   app.use(notFoundHandler);
