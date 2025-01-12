@@ -3,6 +3,7 @@ import { Product } from '../models/Product.js';
 import { Variant } from '../models/Variant.js';
 import { Brand, Category, Color, Sex, Size, type Taxonomy } from '../models/taxonomy.js';
 import type { ListProductsQuery } from '../schemas/product.js';
+import { escapeRegExp } from '../utils/escapeRegExp.js';
 
 interface TaxonomyLean {
   _id: Types.ObjectId;
@@ -148,10 +149,11 @@ async function buildCatalogFilter(query: ListProductsQuery): Promise<FilterQuery
   return filter;
 }
 
-export async function listProducts(query: ListProductsQuery): Promise<ProductPage> {
-  const { page, limit } = query;
-  const filter = await buildCatalogFilter(query);
-
+async function findPage(
+  filter: FilterQuery<Product>,
+  page: number,
+  limit: number,
+): Promise<ProductPage> {
   const [rows, total] = await Promise.all([
     Product.find(filter)
       .select(SUMMARY_FIELDS)
@@ -173,4 +175,31 @@ export async function listProducts(query: ListProductsQuery): Promise<ProductPag
     total,
     totalPages: Math.max(1, Math.ceil(total / limit)),
   };
+}
+
+// two passes. the text index answers first: name and description, title weighted
+// above body, whole words after stemming. that last part is also its limit, "hood"
+// isn't a word in "Hoodie", so a partial word would find nothing. when the index
+// comes back empty the term is matched again as a literal substring of the name,
+// escaped so it's only ever text.
+// TODO: the substring pass can't use an index. fine at this catalog size, will
+// need revisiting.
+async function searchProducts(
+  filter: FilterQuery<Product>,
+  term: string,
+  page: number,
+  limit: number,
+): Promise<ProductPage> {
+  const byRelevance = await findPage({ ...filter, $text: { $search: term } }, page, limit);
+  if (byRelevance.total > 0) return byRelevance;
+
+  return findPage({ ...filter, name: new RegExp(escapeRegExp(term), 'i') }, page, limit);
+}
+
+export async function listProducts(query: ListProductsQuery): Promise<ProductPage> {
+  const { page, limit, search } = query;
+  const filter = await buildCatalogFilter(query);
+
+  if (search) return searchProducts(filter, search, page, limit);
+  return findPage(filter, page, limit);
 }

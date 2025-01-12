@@ -30,6 +30,9 @@ const slugList = z
   )
   .transform((values) => [...new Set(values)]);
 
+export const MIN_SEARCH_LENGTH = 2;
+export const MAX_SEARCH_LENGTH = 80;
+
 // stored and filtered in minor units, so a bound is a whole number of cents
 const priceBound = z.coerce
   .number({ invalid_type_error: 'Price bounds are given in cents' })
@@ -60,6 +63,15 @@ export const listProductsQuerySchema = z
     // listing nobody filtered, and the catalog would just appear to stop there.
     priceMin: priceBound.optional(),
     priceMax: priceBound.optional(),
+
+    // bounded because the term reaches the database as a pattern. a one-character
+    // search matches most of the catalog.
+    search: z
+      .string()
+      .trim()
+      .min(MIN_SEARCH_LENGTH, `Search for at least ${String(MIN_SEARCH_LENGTH)} characters`)
+      .max(MAX_SEARCH_LENGTH, `Search for at most ${String(MAX_SEARCH_LENGTH)} characters`)
+      .optional(),
   })
   .strict()
   .refine(
