@@ -9,6 +9,7 @@ import { notFoundHandler } from './middleware/notFoundHandler.js';
 import { healthRouter } from './routes/health.js';
 import { authRouter } from './routes/auth.js';
 import { productRouter } from './routes/products.js';
+import { taxonomyRouter } from './routes/taxonomy.js';
 
 export function createApp(): Express {
   const app = express();
@@ -31,6 +32,7 @@ export function createApp(): Express {
   app.use(healthRouter);
   app.use('/api/auth', authRouter);
   app.use('/api/products', productRouter);
+  app.use('/api/taxonomy', taxonomyRouter);
 
   // nothing matched above, so it doesn't exist
   app.use(notFoundHandler);

@@ -3,15 +3,10 @@ import { Product } from '../models/Product.js';
 import { Variant } from '../models/Variant.js';
 import { Brand, Category, Color, Sex, Size, type Taxonomy } from '../models/taxonomy.js';
 import type { ListProductsQuery } from '../schemas/product.js';
+import { toTaxonomyRef, type TaxonomyLean, type TaxonomyRef } from './taxonomyService.js';
 import { escapeRegExp } from '../utils/escapeRegExp.js';
 import { compareSizeSlugs } from '../utils/sizeOrder.js';
 import { notFound } from '../utils/AppError.js';
-
-interface TaxonomyLean {
-  _id: Types.ObjectId;
-  name: string;
-  slug: string;
-}
 
 interface VariantRow {
   _id: Types.ObjectId;
@@ -34,11 +29,7 @@ interface ProductRow {
   createdAt: Date;
 }
 
-export interface TaxonomyRef {
-  id: string;
-  name: string;
-  slug: string;
-}
+export type { TaxonomyRef };
 
 export interface ProductSummary {
   id: string;
@@ -84,12 +75,6 @@ const REFERENCES = [
 
 type PopulatedReferences = Pick<ProductRow, 'brand' | 'category' | 'sex'>;
 
-const toRef = (doc: TaxonomyLean): TaxonomyRef => ({
-  id: doc._id.toString(),
-  name: doc.name,
-  slug: doc.slug,
-});
-
 function toSummary(row: ProductRow): ProductSummary {
   return {
     id: row._id.toString(),
@@ -98,9 +83,9 @@ function toSummary(row: ProductRow): ProductSummary {
     description: row.description,
     priceCents: row.priceCents,
     images: row.images,
-    brand: toRef(row.brand),
-    category: toRef(row.category),
-    sex: toRef(row.sex),
+    brand: toTaxonomyRef(row.brand),
+    category: toTaxonomyRef(row.category),
+    sex: toTaxonomyRef(row.sex),
     createdAt: row.createdAt.toISOString(),
   };
 }
@@ -244,8 +229,8 @@ function toVariantOption(row: VariantRow): VariantOption {
     // a size chip is either selectable or greyed out, and that shouldn't depend on
     // every client re-deriving it from a number the same way
     inStock: row.stock > 0,
-    color: toRef(row.color),
-    size: toRef(row.size),
+    color: toTaxonomyRef(row.color),
+    size: toTaxonomyRef(row.size),
   };
 }
 
