@@ -1,6 +1,8 @@
 import { Router } from 'express';
-import { getCartHandler } from '../controllers/cartController.js';
+import { addCartItemHandler, getCartHandler } from '../controllers/cartController.js';
 import { requireAuth } from '../middleware/requireAuth.js';
+import { validate } from '../middleware/validate.js';
+import { addCartItemSchema } from '../schemas/cart.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 
 export const cartRouter: Router = Router();
@@ -11,3 +13,5 @@ export const cartRouter: Router = Router();
 cartRouter.use(requireAuth);
 
 cartRouter.get('/', asyncHandler(getCartHandler));
+
+cartRouter.post('/items', validate({ body: addCartItemSchema }), asyncHandler(addCartItemHandler));
