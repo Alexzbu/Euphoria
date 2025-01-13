@@ -16,3 +16,9 @@ export const addCartItemSchema = z
   .strict();
 
 export type AddCartItemInput = z.infer<typeof addCartItemSchema>;
+
+// no default and no zero. an update has to say what it wants, and emptying a line
+// is a removal, which has its own verb and its own status code.
+export const updateCartItemSchema = z.object({ quantity: quantityField }).strict();
+
+export type UpdateCartItemInput = z.infer<typeof updateCartItemSchema>;

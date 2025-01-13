@@ -1,8 +1,13 @@
 import { Router } from 'express';
-import { addCartItemHandler, getCartHandler } from '../controllers/cartController.js';
+import {
+  addCartItemHandler,
+  getCartHandler,
+  updateCartItemHandler,
+} from '../controllers/cartController.js';
 import { requireAuth } from '../middleware/requireAuth.js';
 import { validate } from '../middleware/validate.js';
-import { addCartItemSchema } from '../schemas/cart.js';
+import { addCartItemSchema, updateCartItemSchema } from '../schemas/cart.js';
+import { idParamsSchema } from '../schemas/common.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 
 export const cartRouter: Router = Router();
@@ -15,3 +20,9 @@ cartRouter.use(requireAuth);
 cartRouter.get('/', asyncHandler(getCartHandler));
 
 cartRouter.post('/items', validate({ body: addCartItemSchema }), asyncHandler(addCartItemHandler));
+
+cartRouter.patch(
+  '/items/:id',
+  validate({ params: idParamsSchema, body: updateCartItemSchema }),
+  asyncHandler(updateCartItemHandler),
+);

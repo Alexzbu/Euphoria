@@ -222,3 +222,34 @@ export async function addItem(
 
   return getCart(userId);
 }
+
+// the owner is part of the filter, so someone else's line just doesn't match and
+// gets the same 404 as an id that never existed. answering differently would
+// confirm the id was real.
+async function findLine(userId: string, itemId: string): Promise<{ variant: Types.ObjectId }> {
+  const cart = await Cart.findOne({ user: userId, 'items._id': itemId })
+    .select({ items: { $elemMatch: { _id: itemId } } })
+    .lean<{ items: { variant: Types.ObjectId }[] } | null>();
+
+  const line = cart?.items[0];
+  if (!line) throw notFound('That item is not in your cart');
+  return line;
+}
+
+export async function updateItemQuantity(
+  userId: string,
+  itemId: string,
+  quantity: number,
+): Promise<CartView> {
+  const line = await findLine(userId, itemId);
+  const variant = await loadBuyableVariant(line.variant.toString());
+
+  if (quantity > limitFor(variant)) throw conflict(`Only ${String(variant.stock)} left in stock`);
+
+  await Cart.updateOne(
+    { user: userId, 'items._id': itemId },
+    { $set: { 'items.$.quantity': quantity } },
+  );
+
+  return getCart(userId);
+}

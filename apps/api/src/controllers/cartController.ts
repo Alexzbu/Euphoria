@@ -1,7 +1,8 @@
 import type { Request, Response } from 'express';
 import * as cartService from '../services/cartService.js';
 import { validated } from '../middleware/validate.js';
-import type { AddCartItemInput } from '../schemas/cart.js';
+import type { AddCartItemInput, UpdateCartItemInput } from '../schemas/cart.js';
+import type { IdParams } from '../schemas/common.js';
 import { unauthorized } from '../utils/AppError.js';
 
 // the owner of the cart, taken from the verified token and from nowhere else.
@@ -22,4 +23,10 @@ export async function getCartHandler(req: Request, res: Response): Promise<void>
 export async function addCartItemHandler(req: Request, res: Response): Promise<void> {
   const input = validated<AddCartItemInput>(req, 'body');
   res.json(await cartService.addItem(ownerId(req), input));
+}
+
+export async function updateCartItemHandler(req: Request, res: Response): Promise<void> {
+  const { id } = validated<IdParams>(req, 'params');
+  const { quantity } = validated<UpdateCartItemInput>(req, 'body');
+  res.json(await cartService.updateItemQuantity(ownerId(req), id, quantity));
 }
