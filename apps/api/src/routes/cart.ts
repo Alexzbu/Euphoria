@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   addCartItemHandler,
   getCartHandler,
+  removeCartItemHandler,
   updateCartItemHandler,
 } from '../controllers/cartController.js';
 import { requireAuth } from '../middleware/requireAuth.js';
@@ -25,4 +26,10 @@ cartRouter.patch(
   '/items/:id',
   validate({ params: idParamsSchema, body: updateCartItemSchema }),
   asyncHandler(updateCartItemHandler),
+);
+
+cartRouter.delete(
+  '/items/:id',
+  validate({ params: idParamsSchema }),
+  asyncHandler(removeCartItemHandler),
 );

@@ -253,3 +253,14 @@ export async function updateItemQuantity(
 
   return getCart(userId);
 }
+
+// "not in your cart" is a 404 and nothing else. a generic failure would tell the
+// client the server broke when it answered the question exactly.
+export async function removeItem(userId: string, itemId: string): Promise<void> {
+  const result = await Cart.updateOne(
+    { user: userId, 'items._id': itemId },
+    { $pull: { items: { _id: itemId } } },
+  );
+
+  if (result.matchedCount === 0) throw notFound('That item is not in your cart');
+}

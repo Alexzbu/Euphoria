@@ -30,3 +30,10 @@ export async function updateCartItemHandler(req: Request, res: Response): Promis
   const { quantity } = validated<UpdateCartItemInput>(req, 'body');
   res.json(await cartService.updateItemQuantity(ownerId(req), id, quantity));
 }
+
+// 204 and no body, the line is gone. whoever needs the new totals refetches the cart.
+export async function removeCartItemHandler(req: Request, res: Response): Promise<void> {
+  const { id } = validated<IdParams>(req, 'params');
+  await cartService.removeItem(ownerId(req), id);
+  res.status(204).send();
+}
