@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { MAX_ITEM_QUANTITY } from '../models/Cart.js';
+import { MAX_CART_LINES, MAX_ITEM_QUANTITY } from '../models/Cart.js';
 import { objectIdField } from './common.js';
 
 const quantityField = z
@@ -22,3 +22,16 @@ export type AddCartItemInput = z.infer<typeof addCartItemSchema>;
 export const updateCartItemSchema = z.object({ quantity: quantityField }).strict();
 
 export type UpdateCartItemInput = z.infer<typeof updateCartItemSchema>;
+
+// the cart someone built before signing in. an empty list is fine and does
+// nothing, so the client can just send whatever it has.
+export const mergeCartSchema = z
+  .object({
+    items: z
+      .array(z.object({ variantId: objectIdField, quantity: quantityField }).strict())
+      .max(MAX_CART_LINES, `A cart holds at most ${String(MAX_CART_LINES)} different items`),
+  })
+  .strict();
+
+export type MergeCartInput = z.infer<typeof mergeCartSchema>;
+export type MergeCartItem = MergeCartInput['items'][number];

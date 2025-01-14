@@ -1,7 +1,7 @@
 import type { Types } from 'mongoose';
 import { Cart, MAX_CART_LINES, MAX_ITEM_QUANTITY } from '../models/Cart.js';
 import { Variant } from '../models/Variant.js';
-import type { AddCartItemInput } from '../schemas/cart.js';
+import type { AddCartItemInput, MergeCartItem } from '../schemas/cart.js';
 import { toTaxonomyRef, type TaxonomyLean, type TaxonomyRef } from './taxonomyService.js';
 import { conflict, notFound, type AppError } from '../utils/AppError.js';
 
@@ -68,7 +68,7 @@ const LINE_POPULATE = {
   ],
 };
 
-const EMPTY_CART: CartView = { items: [], totalItems: 0, subtotalCents: 0 };
+const emptyCart = (): CartView => ({ items: [], totalItems: 0, subtotalCents: 0 });
 
 function toLine(item: CartRow['items'][number], variant: VariantLean): CartLine | null {
   const product = variant.product;
@@ -96,7 +96,7 @@ function toLine(item: CartRow['items'][number], variant: VariantLean): CartLine 
 }
 
 function toView(row: CartRow | null): CartView {
-  if (!row) return EMPTY_CART;
+  if (!row) return emptyCart();
 
   const items = row.items
     .map((item) => (item.variant ? toLine(item, item.variant) : null))
@@ -263,4 +263,67 @@ export async function removeItem(userId: string, itemId: string): Promise<void> 
   );
 
   if (result.matchedCount === 0) throw notFound('That item is not in your cart');
+}
+
+function collapse(items: MergeCartItem[]): Map<string, number> {
+  const desired = new Map<string, number>();
+  for (const item of items) {
+    desired.set(item.variantId, Math.max(desired.get(item.variantId) ?? 0, item.quantity));
+  }
+  return desired;
+}
+
+async function loadBuyableVariants(ids: string[]): Promise<Map<string, BuyableVariant>> {
+  const variants = await Variant.find({ _id: { $in: ids } })
+    .select('stock product')
+    .populate<{ product: { isActive: boolean } | null }>({ path: 'product', select: 'isActive' })
+    .lean();
+
+  return new Map(
+    variants
+      .filter((variant) => variant.product?.isActive)
+      .map((variant) => [variant._id.toString(), variant]),
+  );
+}
+
+async function raiseLineTo(userId: string, variantId: string, quantity: number): Promise<void> {
+  const raised = await Cart.updateOne(
+    { user: userId, items: { $elemMatch: { variant: variantId, quantity: { $lt: quantity } } } },
+    { $set: { 'items.$.quantity': quantity } },
+  );
+  if (raised.matchedCount > 0) return;
+
+  // no match means the line is already at least this big, or there isn't one. an
+  // already-full cart just matches nothing, a merge isn't worth failing a sign-in over.
+  await Cart.updateOne(
+    {
+      user: userId,
+      'items.variant': { $ne: variantId },
+      [`items.${String(MAX_CART_LINES - 1)}`]: { $exists: false },
+    },
+    { $push: { items: { variant: variantId, quantity, addedAt: new Date() } } },
+  );
+}
+
+// quantities go to the larger of the two, never added together. took me a while to
+// see why: merging runs over a network the client can't trust, so a request that
+// times out after the server already handled it gets retried, and addition would
+// double every line. max() gives the same answer however many times it's applied.
+//
+// variants that have left the catalog are skipped, not rejected, otherwise you
+// can't finish signing in because something in last week's cart went out of print.
+export async function mergeGuestCart(userId: string, items: MergeCartItem[]): Promise<CartView> {
+  if (items.length === 0) return getCart(userId);
+
+  const desired = collapse(items);
+  const variants = await loadBuyableVariants([...desired.keys()]);
+  await ensureCart(userId);
+
+  for (const [variantId, quantity] of desired) {
+    const variant = variants.get(variantId);
+    if (!variant) continue;
+    await raiseLineTo(userId, variantId, Math.min(quantity, limitFor(variant)));
+  }
+
+  return getCart(userId);
 }

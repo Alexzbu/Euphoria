@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import * as cartService from '../services/cartService.js';
 import { validated } from '../middleware/validate.js';
-import type { AddCartItemInput, UpdateCartItemInput } from '../schemas/cart.js';
+import type { AddCartItemInput, MergeCartInput, UpdateCartItemInput } from '../schemas/cart.js';
 import type { IdParams } from '../schemas/common.js';
 import { unauthorized } from '../utils/AppError.js';
 
@@ -36,4 +36,9 @@ export async function removeCartItemHandler(req: Request, res: Response): Promis
   const { id } = validated<IdParams>(req, 'params');
   await cartService.removeItem(ownerId(req), id);
   res.status(204).send();
+}
+
+export async function mergeCartHandler(req: Request, res: Response): Promise<void> {
+  const { items } = validated<MergeCartInput>(req, 'body');
+  res.json(await cartService.mergeGuestCart(ownerId(req), items));
 }

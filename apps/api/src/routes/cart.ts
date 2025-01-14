@@ -2,12 +2,13 @@ import { Router } from 'express';
 import {
   addCartItemHandler,
   getCartHandler,
+  mergeCartHandler,
   removeCartItemHandler,
   updateCartItemHandler,
 } from '../controllers/cartController.js';
 import { requireAuth } from '../middleware/requireAuth.js';
 import { validate } from '../middleware/validate.js';
-import { addCartItemSchema, updateCartItemSchema } from '../schemas/cart.js';
+import { addCartItemSchema, mergeCartSchema, updateCartItemSchema } from '../schemas/cart.js';
 import { idParamsSchema } from '../schemas/common.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 
@@ -33,3 +34,5 @@ cartRouter.delete(
   validate({ params: idParamsSchema }),
   asyncHandler(removeCartItemHandler),
 );
+
+cartRouter.post('/merge', validate({ body: mergeCartSchema }), asyncHandler(mergeCartHandler));
