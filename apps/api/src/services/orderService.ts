@@ -2,7 +2,7 @@ import { randomBytes } from 'node:crypto';
 import type { Types } from 'mongoose';
 import { Order, type OrderItem, type OrderStatus, type ShippingAddress } from '../models/Order.js';
 import { Variant } from '../models/Variant.js';
-import type { CreateOrderInput } from '../schemas/order.js';
+import type { CreateOrderInput, ListOrdersQuery } from '../schemas/order.js';
 import * as cartService from './cartService.js';
 import type { CartLine } from './cartService.js';
 import { conflict, notFound, unprocessable } from '../utils/AppError.js';
@@ -89,7 +89,7 @@ function toOrderView(row: OrderRow): OrderView {
 
 // the owner is part of the filter, so another user's order id is indistinguishable
 // from one that doesn't exist
-async function loadOrderView(userId: string, orderId: string): Promise<OrderView> {
+export async function getOrder(userId: string, orderId: string): Promise<OrderView> {
   const row = await Order.findOne({ _id: orderId, user: userId }).lean<OrderRow | null>();
   if (!row) throw notFound('Order not found');
   return toOrderView(row);
@@ -184,9 +184,71 @@ export async function createOrder(
     // below failed, leaving the customer with neither.
     await cartService.clear(userId);
 
-    return loadOrderView(userId, order._id.toString());
+    return getOrder(userId, order._id.toString());
   } catch (error) {
     await releaseStock(reserved);
     throw error;
   }
+}
+
+export interface OrderSummary {
+  id: string;
+  orderNumber: string;
+  status: OrderStatus;
+  totalItems: number;
+  totalCents: number;
+  currency: string;
+  placedAt: string;
+}
+
+export interface OrderPage {
+  items: OrderSummary[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+type OrderSummaryRow = Pick<
+  OrderRow,
+  '_id' | 'orderNumber' | 'status' | 'totalCents' | 'currency' | 'placedAt'
+> & { items: Pick<OrderItem, 'quantity'>[] };
+
+function toOrderSummary(row: OrderSummaryRow): OrderSummary {
+  return {
+    id: row._id.toString(),
+    orderNumber: row.orderNumber,
+    status: row.status,
+    totalItems: row.items.reduce((sum, item) => sum + item.quantity, 0),
+    totalCents: row.totalCents,
+    currency: row.currency,
+    placedAt: row.placedAt.toISOString(),
+  };
+}
+
+// the filter is { user }, so the listing can't widen past the caller. lines are
+// projected down to quantities, a history page shows totals and not contents.
+export async function listOrders(
+  userId: string,
+  { page, limit }: ListOrdersQuery,
+): Promise<OrderPage> {
+  const filter = { user: userId };
+
+  const [rows, total] = await Promise.all([
+    Order.find(filter)
+      .select('orderNumber status totalCents currency placedAt items.quantity')
+      .sort({ placedAt: -1, _id: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .lean<OrderSummaryRow[]>(),
+    Order.countDocuments(filter),
+  ]);
+
+  return {
+    items: rows.map(toOrderSummary),
+    page,
+    limit,
+    total,
+    totalPages: Math.max(1, Math.ceil(total / limit)),
+  };
 }
