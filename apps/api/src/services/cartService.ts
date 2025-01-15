@@ -327,3 +327,9 @@ export async function mergeGuestCart(userId: string, items: MergeCartItem[]): Pr
 
   return getCart(userId);
 }
+
+// emptied, not deleted. the document is the shopper's and keeping it saves an
+// upsert on their next visit.
+export async function clear(userId: string): Promise<void> {
+  await Cart.updateOne({ user: userId }, { $set: { items: [] } });
+}

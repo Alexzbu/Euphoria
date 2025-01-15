@@ -11,6 +11,7 @@ import { authRouter } from './routes/auth.js';
 import { productRouter } from './routes/products.js';
 import { taxonomyRouter } from './routes/taxonomy.js';
 import { cartRouter } from './routes/cart.js';
+import { orderRouter } from './routes/orders.js';
 
 export function createApp(): Express {
   const app = express();
@@ -35,6 +36,7 @@ export function createApp(): Express {
   app.use('/api/products', productRouter);
   app.use('/api/taxonomy', taxonomyRouter);
   app.use('/api/cart', cartRouter);
+  app.use('/api/orders', orderRouter);
 
   // nothing matched above, so it doesn't exist
   app.use(notFoundHandler);
