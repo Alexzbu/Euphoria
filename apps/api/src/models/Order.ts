@@ -15,6 +15,19 @@ export const ORDER_STATUSES = [
 
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
+// as data, not a chain of ifs spread across everything that changes a status. the
+// illegal moves are then as visible as the legal ones.
+export const ORDER_TRANSITIONS: Record<OrderStatus, readonly OrderStatus[]> = {
+  PENDING_PAYMENT: ['PAID', 'CANCELLED'],
+  PAID: ['FULFILLED', 'REFUNDED', 'CANCELLED'],
+  FULFILLED: ['REFUNDED'],
+  CANCELLED: [],
+  REFUNDED: [],
+};
+
+export const canTransition = (from: OrderStatus, to: OrderStatus): boolean =>
+  ORDER_TRANSITIONS[from].includes(to);
+
 export interface OrderItem {
   _id: Types.ObjectId;
   variant: Types.ObjectId;

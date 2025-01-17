@@ -1,7 +1,11 @@
 import type { Request, Response } from 'express';
 import * as orderService from '../services/orderService.js';
 import { validated } from '../middleware/validate.js';
-import type { CreateOrderInput, ListOrdersQuery } from '../schemas/order.js';
+import type {
+  CreateOrderInput,
+  ListOrdersQuery,
+  UpdateOrderStatusInput,
+} from '../schemas/order.js';
 import type { IdParams } from '../schemas/common.js';
 import { unauthorized } from '../utils/AppError.js';
 
@@ -24,4 +28,17 @@ export async function listOrdersHandler(req: Request, res: Response): Promise<vo
 export async function getOrderHandler(req: Request, res: Response): Promise<void> {
   const { id } = validated<IdParams>(req, 'params');
   res.json({ order: await orderService.getOrder(customerId(req), id) });
+}
+
+export async function cancelOrderHandler(req: Request, res: Response): Promise<void> {
+  const { id } = validated<IdParams>(req, 'params');
+  res.json({ order: await orderService.cancelOwnOrder(customerId(req), id) });
+}
+
+// behind requireRole('ADMIN'), so no ownership check applies. this is someone
+// acting on the shop's behalf, not on their own order.
+export async function updateOrderStatusHandler(req: Request, res: Response): Promise<void> {
+  const { id } = validated<IdParams>(req, 'params');
+  const { status } = validated<UpdateOrderStatusInput>(req, 'body');
+  res.json({ order: await orderService.changeOrderStatus(id, status) });
 }

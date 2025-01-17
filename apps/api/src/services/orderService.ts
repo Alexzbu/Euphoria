@@ -1,6 +1,12 @@
 import { randomBytes } from 'node:crypto';
 import type { Types } from 'mongoose';
-import { Order, type OrderItem, type OrderStatus, type ShippingAddress } from '../models/Order.js';
+import {
+  canTransition,
+  Order,
+  type OrderItem,
+  type OrderStatus,
+  type ShippingAddress,
+} from '../models/Order.js';
 import { Variant } from '../models/Variant.js';
 import type { CreateOrderInput, ListOrdersQuery } from '../schemas/order.js';
 import * as cartService from './cartService.js';
@@ -251,4 +257,59 @@ export async function listOrders(
     total,
     totalPages: Math.max(1, Math.ceil(total / limit)),
   };
+}
+
+// statuses where stock is still spoken for. cancelling gives the units back, a
+// refund doesn't, since a refunded order already shipped.
+const HOLDS_STOCK: readonly OrderStatus[] = ['PENDING_PAYMENT', 'PAID'];
+
+async function restock(items: OrderItem[]): Promise<void> {
+  for (const item of items) {
+    await Variant.updateOne({ _id: item.variant }, { $inc: { stock: item.quantity } });
+  }
+}
+
+// asking for the status it already has succeeds and does nothing. payment providers
+// retry their notifications, and a retry meaning "already done" isn't a conflict.
+async function applyTransition(row: OrderRow, next: OrderStatus): Promise<OrderView> {
+  if (row.status === next) return toOrderView(row);
+
+  if (!canTransition(row.status, next)) {
+    throw conflict(`An order that is ${row.status} cannot become ${next}`);
+  }
+
+  // the current status is part of the filter, so a status that changed while this
+  // request was deciding can't be overwritten on the strength of a stale read
+  const updated = await Order.findOneAndUpdate(
+    { _id: row._id, status: row.status },
+    { $set: { status: next } },
+    { new: true },
+  ).lean<OrderRow | null>();
+
+  if (!updated) throw conflict('The order changed while this request was in flight');
+
+  if (next === 'CANCELLED' && HOLDS_STOCK.includes(row.status)) await restock(row.items);
+
+  return toOrderView(updated);
+}
+
+// admin: any legal move, on any order
+export async function changeOrderStatus(orderId: string, next: OrderStatus): Promise<OrderView> {
+  const row = await Order.findById(orderId).lean<OrderRow | null>();
+  if (!row) throw notFound('Order not found');
+
+  return applyTransition(row, next);
+}
+
+// what a customer may do to their own order: cancel it, and only before anyone has
+// paid. once money has moved, undoing it is a refund.
+export async function cancelOwnOrder(userId: string, orderId: string): Promise<OrderView> {
+  const row = await Order.findOne({ _id: orderId, user: userId }).lean<OrderRow | null>();
+  if (!row) throw notFound('Order not found');
+
+  if (row.status !== 'PENDING_PAYMENT') {
+    throw conflict('Only an order awaiting payment can be cancelled here');
+  }
+
+  return applyTransition(row, 'CANCELLED');
 }
