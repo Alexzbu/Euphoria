@@ -44,11 +44,24 @@ const envSchema = z
       .string()
       .startsWith('sk_', 'STRIPE_SECRET_KEY must be a secret key, not a publishable one')
       .optional(),
+
+    // browsers drop a SameSite=None cookie that isn't also Secure, and it fails
+    // silently: login works, cookie never arrives, next request looks expired.
+    STRIPE_WEBHOOK_SECRET: z
+      .string()
+      .startsWith('whsec_', 'STRIPE_WEBHOOK_SECRET must be a webhook signing secret')
+      .optional(),
   })
   // otherwise the server starts fine and dies at the first upload
   .refine((cfg) => !(cfg.COOKIE_SAME_SITE === 'none' && !cfg.COOKIE_SECURE), {
     message: 'COOKIE_SAME_SITE=none requires COOKIE_SECURE=true',
     path: ['COOKIE_SAME_SITE'],
+  })
+  // all three or none. a partial set shows up as a sign-in button that only fails
+  // once someone clicks it.
+  .refine((cfg) => cfg.STRIPE_WEBHOOK_SECRET === undefined || cfg.STRIPE_SECRET_KEY !== undefined, {
+    message: 'STRIPE_WEBHOOK_SECRET requires STRIPE_SECRET_KEY',
+    path: ['STRIPE_WEBHOOK_SECRET'],
   })
   // all three or none. a partial set shows up as a sign-in button that only fails
   // once someone clicks it.

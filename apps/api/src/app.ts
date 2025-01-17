@@ -12,6 +12,7 @@ import { productRouter } from './routes/products.js';
 import { taxonomyRouter } from './routes/taxonomy.js';
 import { cartRouter } from './routes/cart.js';
 import { orderRouter } from './routes/orders.js';
+import { stripeWebhookRouter } from './routes/stripeWebhook.js';
 
 export function createApp(): Express {
   const app = express();
@@ -25,6 +26,10 @@ export function createApp(): Express {
       credentials: true,
     }),
   );
+
+  // ahead of the json parser, deliberately. the webhook verifies a signature over
+  // the raw body, and that's gone once a parser has turned it into an object.
+  app.use('/api/stripe', stripeWebhookRouter);
 
   app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: false }));
