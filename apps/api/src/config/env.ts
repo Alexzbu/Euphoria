@@ -37,6 +37,13 @@ const envSchema = z
     GOOGLE_CLIENT_ID: z.string().min(1).optional(),
     GOOGLE_CLIENT_SECRET: z.string().min(1).optional(),
     GOOGLE_CALLBACK_URL: z.string().url().optional(),
+
+    // the publishable key is the one you find first when you go looking, and pasting
+    // it here would fail at the first charge instead of at boot
+    STRIPE_SECRET_KEY: z
+      .string()
+      .startsWith('sk_', 'STRIPE_SECRET_KEY must be a secret key, not a publishable one')
+      .optional(),
   })
   // otherwise the server starts fine and dies at the first upload
   .refine((cfg) => !(cfg.COOKIE_SAME_SITE === 'none' && !cfg.COOKIE_SECURE), {

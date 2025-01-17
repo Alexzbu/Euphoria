@@ -2,10 +2,12 @@ import { Router } from 'express';
 import {
   cancelOrderHandler,
   createOrderHandler,
+  createPaymentIntentHandler,
   getOrderHandler,
   listOrdersHandler,
   updateOrderStatusHandler,
 } from '../controllers/orderController.js';
+import { isStripeConfigured } from '../config/stripe.js';
 import { requireAuth, requireRole } from '../middleware/requireAuth.js';
 import { validate } from '../middleware/validate.js';
 import {
@@ -41,3 +43,13 @@ orderRouter.patch(
   validate({ params: idParamsSchema, body: updateOrderStatusSchema }),
   asyncHandler(updateOrderStatusHandler),
 );
+
+// registered only when a stripe key is present, so a deployment without one 404s
+// here instead of failing inside a checkout the customer already started.
+if (isStripeConfigured) {
+  orderRouter.post(
+    '/:id/payment-intent',
+    validate({ params: idParamsSchema }),
+    asyncHandler(createPaymentIntentHandler),
+  );
+}

@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import * as orderService from '../services/orderService.js';
+import * as paymentService from '../services/paymentService.js';
 import { validated } from '../middleware/validate.js';
 import type {
   CreateOrderInput,
@@ -41,4 +42,9 @@ export async function updateOrderStatusHandler(req: Request, res: Response): Pro
   const { id } = validated<IdParams>(req, 'params');
   const { status } = validated<UpdateOrderStatusInput>(req, 'body');
   res.json({ order: await orderService.changeOrderStatus(id, status) });
+}
+
+export async function createPaymentIntentHandler(req: Request, res: Response): Promise<void> {
+  const { id } = validated<IdParams>(req, 'params');
+  res.json(await paymentService.createPaymentIntent(customerId(req), id));
 }

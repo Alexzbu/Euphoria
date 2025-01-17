@@ -64,6 +64,8 @@ export interface Order {
   currency: string;
   status: OrderStatus;
   shippingAddress: ShippingAddress;
+  // stripe's id for the intent covering this order, once there is one
+  paymentIntentId?: string;
   placedAt: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -139,6 +141,7 @@ const orderSchema = new Schema<Order>(
       default: 'PENDING_PAYMENT',
     },
     shippingAddress: { type: shippingAddressSchema, required: true },
+    paymentIntentId: { type: String, trim: true },
     placedAt: { type: Date, required: true, default: Date.now },
   },
   { timestamps: true },
@@ -149,5 +152,9 @@ orderSchema.index({ user: 1, createdAt: -1 });
 
 // admin goes the other way round, by state
 orderSchema.index({ status: 1, createdAt: -1 });
+
+// notifications arrive naming an intent, not an order. unique and sparse, one intent
+// per order and most orders have none for most of their life.
+orderSchema.index({ paymentIntentId: 1 }, { unique: true, sparse: true });
 
 export const Order: Model<Order> = model<Order>('Order', orderSchema);
