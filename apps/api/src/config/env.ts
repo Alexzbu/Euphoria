@@ -38,6 +38,25 @@ const envSchema = z
     GOOGLE_CLIENT_SECRET: z.string().min(1).optional(),
     GOOGLE_CALLBACK_URL: z.string().url().optional(),
 
+    // disk by default, since it needs no account to set up
+    STORAGE_DRIVER: z.enum(['disk', 's3']).default('disk'),
+    UPLOAD_DIR: z.string().min(1).default('uploads'),
+
+    // no trailing slash. urls are built by joining this to a key with exactly one.
+    MEDIA_BASE_PATH: z
+      .string()
+      .regex(/^\/[^/](?:.*[^/])?$/, 'MEDIA_BASE_PATH must start with "/" and not end with one')
+      .default('/media'),
+
+    // credentials deliberately aren't listed, the aws sdk finds them itself (env,
+    // shared config, or an attached role) and naming them here rules the last one out.
+    S3_BUCKET: z.string().min(1).optional(),
+    S3_REGION: z.string().min(1).optional(),
+    // for an s3-compatible store that isn't aws itself
+    S3_ENDPOINT: z.string().url().optional(),
+    // where images actually get fetched from when a cdn fronts the bucket
+    S3_PUBLIC_BASE_URL: z.string().url().optional(),
+
     // the publishable key is the one you find first when you go looking, and pasting
     // it here would fail at the first charge instead of at boot
     STRIPE_SECRET_KEY: z
@@ -57,6 +76,15 @@ const envSchema = z
     message: 'COOKIE_SAME_SITE=none requires COOKIE_SECURE=true',
     path: ['COOKIE_SAME_SITE'],
   })
+  // a webhook secret with no api key is always a copy-paste mistake
+  .refine(
+    (cfg) =>
+      cfg.STORAGE_DRIVER !== 's3' || (cfg.S3_BUCKET !== undefined && cfg.S3_REGION !== undefined),
+    {
+      message: 'STORAGE_DRIVER=s3 requires S3_BUCKET and S3_REGION',
+      path: ['STORAGE_DRIVER'],
+    },
+  )
   // all three or none. a partial set shows up as a sign-in button that only fails
   // once someone clicks it.
   .refine((cfg) => cfg.STRIPE_WEBHOOK_SECRET === undefined || cfg.STRIPE_SECRET_KEY !== undefined, {

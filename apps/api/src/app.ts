@@ -13,6 +13,7 @@ import { taxonomyRouter } from './routes/taxonomy.js';
 import { cartRouter } from './routes/cart.js';
 import { orderRouter } from './routes/orders.js';
 import { stripeWebhookRouter } from './routes/stripeWebhook.js';
+import { imageStorage } from './storage/imageStorage.js';
 
 export function createApp(): Express {
   const app = express();
@@ -34,6 +35,26 @@ export function createApp(): Express {
   app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: false }));
   app.use(cookieParser());
+
+  // only the disk backend needs this process to serve images, an object store
+  // answers for its own. names are unique per upload so cache hard, and the resource
+  // policy is relaxed here alone: helmet's default is same-origin, which is right
+  // for an api and wrong for a picture the storefront renders.
+  if (imageStorage.localRoot !== undefined) {
+    app.use(
+      env.MEDIA_BASE_PATH,
+      helmet.crossOriginResourcePolicy({ policy: 'cross-origin' }),
+      express.static(imageStorage.localRoot, {
+        index: false,
+        dotfiles: 'ignore',
+        immutable: true,
+        maxAge: '1y',
+        // a missing image falls through to the json 404 instead of being answered by
+        // the static handler in a format nothing else here uses
+        fallthrough: true,
+      }),
+    );
+  }
 
   // outside /api, probes shouldn't have to know the api's routing conventions
   app.use(healthRouter);
