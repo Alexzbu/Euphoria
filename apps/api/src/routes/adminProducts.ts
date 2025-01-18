@@ -4,10 +4,15 @@ import {
   deleteProductHandler,
   updateProductHandler,
 } from '../controllers/adminProductController.js';
+import {
+  createVariantHandler,
+  listVariantsHandler,
+} from '../controllers/adminVariantController.js';
 import { requireAuth, requireRole } from '../middleware/requireAuth.js';
 import { uploadImages } from '../middleware/upload.js';
 import { validate } from '../middleware/validate.js';
 import { createProductSchema, updateProductSchema } from '../schemas/adminProduct.js';
+import { createVariantSchema } from '../schemas/adminVariant.js';
 import { idParamsSchema } from '../schemas/common.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 
@@ -36,4 +41,20 @@ adminProductRouter.delete(
   '/:id',
   validate({ params: idParamsSchema }),
   asyncHandler(deleteProductHandler),
+);
+
+// a product's variants, nested under the product they belong to. the shopper-facing
+// detail endpoint answers the same question, but only for a product that's on sale.
+// this one also answers for a deactivated one, which is the state anything being
+// edited tends to be in.
+adminProductRouter.get(
+  '/:id/variants',
+  validate({ params: idParamsSchema }),
+  asyncHandler(listVariantsHandler),
+);
+
+adminProductRouter.post(
+  '/:id/variants',
+  validate({ params: idParamsSchema, body: createVariantSchema }),
+  asyncHandler(createVariantHandler),
 );

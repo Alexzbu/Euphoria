@@ -8,7 +8,7 @@ import { escapeRegExp } from '../utils/escapeRegExp.js';
 import { compareSizeSlugs } from '../utils/sizeOrder.js';
 import { notFound } from '../utils/AppError.js';
 
-interface VariantRow {
+export interface VariantRow {
   _id: Types.ObjectId;
   sku: string;
   stock: number;
@@ -224,7 +224,7 @@ const VARIANTS = {
   ],
 };
 
-function toVariantOption(row: VariantRow): VariantOption {
+export function toVariantOption(row: VariantRow): VariantOption {
   return {
     id: row._id.toString(),
     sku: row.sku,
