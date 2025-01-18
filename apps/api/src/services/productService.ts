@@ -16,7 +16,7 @@ interface VariantRow {
   size: TaxonomyLean;
 }
 
-interface ProductRow {
+export interface ProductRow {
   _id: Types.ObjectId;
   name: string;
   slug: string;
@@ -65,17 +65,20 @@ export interface ProductPage {
   totalPages: number;
 }
 
-const SUMMARY_FIELDS = 'name slug description priceCents images brand category sex createdAt';
+// exported because admin reads answer with the same product. kept separate the two
+// views drift, and it shows up as a field an admin can edit but nobody can see.
+export const SUMMARY_FIELDS =
+  'name slug description priceCents images brand category sex createdAt';
 
-const REFERENCES = [
+export const REFERENCES = [
   { path: 'brand', select: 'name slug' },
   { path: 'category', select: 'name slug' },
   { path: 'sex', select: 'name slug' },
 ];
 
-type PopulatedReferences = Pick<ProductRow, 'brand' | 'category' | 'sex'>;
+export type PopulatedReferences = Pick<ProductRow, 'brand' | 'category' | 'sex'>;
 
-function toSummary(row: ProductRow): ProductSummary {
+export function toSummary(row: ProductRow): ProductSummary {
   return {
     id: row._id.toString(),
     name: row.name,

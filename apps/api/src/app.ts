@@ -13,6 +13,7 @@ import { taxonomyRouter } from './routes/taxonomy.js';
 import { cartRouter } from './routes/cart.js';
 import { orderRouter } from './routes/orders.js';
 import { stripeWebhookRouter } from './routes/stripeWebhook.js';
+import { adminProductRouter } from './routes/adminProducts.js';
 import { imageStorage } from './storage/imageStorage.js';
 
 export function createApp(): Express {
@@ -63,6 +64,10 @@ export function createApp(): Express {
   app.use('/api/taxonomy', taxonomyRouter);
   app.use('/api/cart', cartRouter);
   app.use('/api/orders', orderRouter);
+
+  // own prefix, so what a path grants is visible in the path and not only in the
+  // guards behind it
+  app.use('/api/admin/products', adminProductRouter);
 
   // nothing matched above, so it doesn't exist
   app.use(notFoundHandler);
