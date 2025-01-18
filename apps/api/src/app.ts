@@ -15,6 +15,7 @@ import { orderRouter } from './routes/orders.js';
 import { stripeWebhookRouter } from './routes/stripeWebhook.js';
 import { adminProductRouter } from './routes/adminProducts.js';
 import { adminVariantRouter } from './routes/adminVariants.js';
+import { adminTaxonomyRouter } from './routes/adminTaxonomy.js';
 import { imageStorage } from './storage/imageStorage.js';
 
 export function createApp(): Express {
@@ -70,6 +71,7 @@ export function createApp(): Express {
   // guards behind it
   app.use('/api/admin/products', adminProductRouter);
   app.use('/api/admin/variants', adminVariantRouter);
+  app.use('/api/admin/taxonomy', adminTaxonomyRouter);
 
   // nothing matched above, so it doesn't exist
   app.use(notFoundHandler);
