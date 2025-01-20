@@ -1,0 +1,58 @@
+/* woff2 only. every browser that runs a module script supports it, so a woff
+   fallback would double the weight of this directory for nobody. */
+
+@font-face {
+  font-family: 'Causten';
+  src: url('../assets/fonts/Causten-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Causten';
+  src: url('../assets/fonts/Causten-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Causten';
+  src: url('../assets/fonts/Causten-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Causten';
+  src: url('../assets/fonts/Causten-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'CoreSans';
+  src: url('../assets/fonts/CoreSansC-55Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'CoreSans';
+  src: url('../assets/fonts/CoreSansC-65Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'CoreSans';
+  src: url('../assets/fonts/CoreSansC-75ExtraBold.woff2') format('woff2');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
