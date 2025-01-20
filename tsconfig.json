@@ -7,6 +7,9 @@
     },
     {
       "path": "./apps/api/tsconfig.test.json"
+    },
+    {
+      "path": "./apps/web"
     }
   ]
 }
