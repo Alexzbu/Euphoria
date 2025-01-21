@@ -1,5 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { AppProviders } from './app/AppProviders';
 import { App } from './App';
 import './styles/base.css';
 
@@ -8,6 +9,8 @@ if (!container) throw new Error('index.html is missing #root');
 
 createRoot(container).render(
   <StrictMode>
-    <App />
+    <AppProviders>
+      <App />
+    </AppProviders>
   </StrictMode>,
 );
