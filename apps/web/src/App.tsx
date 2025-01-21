@@ -1,7 +1,10 @@
+import { BrowserRouter } from 'react-router-dom';
+import { AppRoutes } from './routes/AppRoutes';
+
 export function App() {
   return (
-    <main>
-      <h1>Euphoria</h1>
-    </main>
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
   );
 }

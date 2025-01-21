@@ -1,0 +1,40 @@
+.wrapper {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-9) var(--gutter);
+  text-align: center;
+}
+
+.code {
+  color: var(--color-accent);
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-heavy);
+  line-height: 1;
+}
+
+.title {
+  font-size: var(--text-xl);
+}
+
+.message {
+  max-width: 32rem;
+  color: var(--color-ink-muted);
+}
+
+.link {
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-accent);
+  color: var(--color-ink-inverse);
+  font-weight: var(--weight-semibold);
+  transition: background-color var(--transition-base);
+}
+
+.link:hover {
+  background-color: var(--color-accent-strong);
+}
