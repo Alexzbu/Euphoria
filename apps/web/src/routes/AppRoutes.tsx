@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from '../components/layout/Layout';
+import { Catalog } from '../pages/Catalog';
 import { Home } from '../pages/Home';
 import { NotFound } from '../pages/NotFound';
 import { Placeholder } from '../pages/Placeholder';
@@ -11,7 +12,7 @@ export function AppRoutes() {
     <Routes>
       <Route element={<Layout />}>
         <Route path={ROUTES.home} element={<Home />} />
-        <Route path={ROUTES.catalog} element={<Placeholder title="Catalog" />} />
+        <Route path={ROUTES.catalog} element={<Catalog />} />
         <Route path={ROUTES.product} element={<Placeholder title="Product" />} />
         <Route path={ROUTES.cart} element={<Placeholder title="Cart" />} />
         <Route path={ROUTES.login} element={<Placeholder title="Sign in" />} />
