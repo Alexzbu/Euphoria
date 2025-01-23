@@ -1,0 +1,222 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  border-bottom: 1px solid var(--color-border-subtle);
+  background-color: var(--color-surface);
+}
+
+.inner {
+  composes: container from '../../styles/layout.module.css';
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  padding-block: var(--space-3);
+}
+
+.logo {
+  flex-shrink: 0;
+}
+
+.logo img {
+  height: 2.25rem;
+  width: auto;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.navLink {
+  position: relative;
+  font-size: var(--text-md);
+  font-weight: var(--weight-medium);
+  padding-block: var(--space-1);
+}
+
+.navLink::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 0;
+  height: 0.1875rem;
+  border-radius: var(--radius-xs);
+  background-color: var(--color-accent);
+  transition:
+    width var(--transition-base),
+    left var(--transition-base);
+}
+
+.navLink:hover::after,
+.navLinkActive::after {
+  left: 0;
+  width: 100%;
+}
+
+.navLinkActive {
+  color: var(--color-accent);
+  font-weight: var(--weight-bold);
+}
+
+.search {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  max-width: 22rem;
+  align-items: center;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface-sunken);
+}
+
+.searchIcon {
+  position: absolute;
+  left: var(--space-4);
+  color: var(--color-ink-muted);
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  height: 2.75rem;
+  padding-inline: var(--space-9) var(--space-4);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background-color: transparent;
+}
+
+.searchInput::placeholder {
+  color: var(--color-ink-muted);
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+.iconButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface-sunken);
+  color: var(--color-ink);
+  transition:
+    background-color var(--transition-base),
+    color var(--transition-base);
+}
+
+.iconButton:hover {
+  background-color: var(--color-accent);
+  color: var(--color-ink-inverse);
+}
+
+.signIn {
+  padding: var(--space-2) var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-weight: var(--weight-semibold);
+  transition:
+    background-color var(--transition-base),
+    border-color var(--transition-base),
+    color var(--transition-base);
+}
+
+.signIn:hover {
+  border-color: var(--color-accent);
+  background-color: var(--color-accent);
+  color: var(--color-ink-inverse);
+}
+
+.burger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0;
+  background-color: transparent;
+  color: var(--color-ink);
+}
+
+.burgerBars,
+.burgerBars::before,
+.burgerBars::after {
+  display: block;
+  width: 1.375rem;
+  height: 0.125rem;
+  border-radius: var(--radius-xs);
+  background-color: currentColor;
+  transition: transform var(--transition-base);
+}
+
+.burgerBars::before,
+.burgerBars::after {
+  content: '';
+  position: absolute;
+}
+
+.burgerBars::before {
+  transform: translateY(-0.4375rem);
+}
+
+.burgerBars::after {
+  transform: translateY(0.4375rem);
+}
+
+/* one breakpoint, at the width the row stops fitting. below it the nav and the
+   search move into a panel under the header, and the burger opens it. */
+@media (max-width: 62em) {
+  .burger {
+    display: flex;
+  }
+
+  .panel {
+    display: none;
+  }
+
+  .panelOpen {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: var(--space-5) var(--gutter);
+    border-bottom: 1px solid var(--color-border-subtle);
+    background-color: var(--color-surface);
+    box-shadow: var(--shadow-md);
+  }
+
+  .panelOpen .nav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+  }
+
+  .panelOpen .search {
+    max-width: none;
+  }
+}
+
+/* above it the wrapper gets out of the way and its children lay out as if they
+   were direct children of the header row */
+@media (min-width: 62.0625em) {
+  .panel {
+    display: contents;
+  }
+}

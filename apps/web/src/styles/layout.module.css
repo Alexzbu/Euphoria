@@ -1,0 +1,8 @@
+/* the one container every band of the page sits in. composed into component
+   modules so the width and gutter live in a single rule. */
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}

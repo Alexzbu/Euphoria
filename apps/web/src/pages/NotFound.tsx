@@ -4,7 +4,7 @@ import styles from './NotFound.module.css';
 
 export function NotFound() {
   return (
-    <main className={styles.wrapper}>
+    <section className={styles.wrapper}>
       <p className={styles.code}>404</p>
       <h1 className={styles.title}>We can&apos;t find that page</h1>
       <p className={styles.message}>
@@ -14,6 +14,6 @@ export function NotFound() {
       <Link className={styles.link} to={ROUTES.catalog}>
         Browse the catalog
       </Link>
-    </main>
+    </section>
   );
 }

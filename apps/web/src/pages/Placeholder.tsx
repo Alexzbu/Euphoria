@@ -6,8 +6,8 @@ interface Props {
 // meantime: every path in it resolves to something.
 export function Placeholder({ title }: Props) {
   return (
-    <main>
+    <section>
       <h1>{title}</h1>
-    </main>
+    </section>
   );
 }
