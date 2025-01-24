@@ -3,6 +3,13 @@
   padding-block: var(--space-7);
 }
 
+.layout {
+  display: grid;
+  gap: var(--space-6);
+  align-items: start;
+  grid-template-columns: 15rem 1fr;
+}
+
 .header {
   display: flex;
   flex-wrap: wrap;
@@ -62,6 +69,10 @@
 }
 
 @media (max-width: 62em) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
   .grid {
     grid-template-columns: repeat(2, 1fr);
   }

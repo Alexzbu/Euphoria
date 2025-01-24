@@ -1,0 +1,100 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-ink-muted);
+  cursor: pointer;
+  transition: color var(--transition-base);
+}
+
+.option:hover,
+.optionChecked {
+  color: var(--color-ink);
+}
+
+.checkbox {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--color-accent);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.chip {
+  display: flex;
+  min-width: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--color-ink-muted);
+  cursor: pointer;
+  transition:
+    border-color var(--transition-base),
+    background-color var(--transition-base),
+    color var(--transition-base);
+}
+
+.chip:hover {
+  border-color: var(--color-accent);
+}
+
+.chipChecked {
+  border-color: var(--color-accent);
+  background-color: var(--color-accent);
+  color: var(--color-ink-inverse);
+}
+
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.swatch {
+  position: relative;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  /* the taxonomy slug doubles as a css colour name for the palette in the
+     catalog. anything it can't paint falls back to the sunken surface. */
+  background-color: var(--color-surface-sunken);
+  background-image: linear-gradient(var(--swatch-color), var(--swatch-color));
+  cursor: pointer;
+  transition: box-shadow var(--transition-base);
+}
+
+.swatchChecked {
+  box-shadow:
+    0 0 0 2px var(--color-surface),
+    0 0 0 4px var(--color-accent);
+}
+
+/* the input itself is off-screen: the label is the control the user sees, and it
+   still has to be reachable by keyboard */
+.input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.input:focus-visible + .visual,
+.chip:has(.input:focus-visible),
+.swatch:has(.input:focus-visible) {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
