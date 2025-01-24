@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Icon } from '../Icon';
 import { cx } from '../../lib/cx';
 import { useAuth } from '../../features/auth/useAuth';
+import { useCart } from '../../features/cart/useCart';
 import { ROUTES } from '../../routes/paths';
 import styles from './Header.module.css';
 
@@ -19,6 +20,7 @@ const navClass = ({ isActive }: { isActive: boolean }): string =>
 
 export function Header() {
   const { status, isAdmin, logout } = useAuth();
+  const { cart } = useCart();
   const [menuOpen, setMenuOpen] = useState(false);
   const [term, setTerm] = useState('');
   const navigate = useNavigate();
@@ -105,8 +107,15 @@ export function Header() {
             </Link>
           )}
 
-          <Link to={ROUTES.cart} className={styles.iconButton} aria-label="Your cart">
+          <Link
+            to={ROUTES.cart}
+            className={styles.iconButton}
+            aria-label={
+              cart.totalItems > 0 ? `Your cart, ${String(cart.totalItems)} items` : 'Your cart'
+            }
+          >
             <Icon name="cart" />
+            {cart.totalItems > 0 && <span className={styles.badge}>{cart.totalItems}</span>}
           </Link>
 
           <button

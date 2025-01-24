@@ -3,6 +3,7 @@ import { Layout } from '../components/layout/Layout';
 import { Catalog } from '../pages/Catalog';
 import { Home } from '../pages/Home';
 import { NotFound } from '../pages/NotFound';
+import { Product } from '../pages/Product';
 import { Placeholder } from '../pages/Placeholder';
 import { ProtectedRoute } from './ProtectedRoute';
 import { ROUTES } from './paths';
@@ -13,7 +14,7 @@ export function AppRoutes() {
       <Route element={<Layout />}>
         <Route path={ROUTES.home} element={<Home />} />
         <Route path={ROUTES.catalog} element={<Catalog />} />
-        <Route path={ROUTES.product} element={<Placeholder title="Product" />} />
+        <Route path={ROUTES.product} element={<Product />} />
         <Route path={ROUTES.cart} element={<Placeholder title="Cart" />} />
         <Route path={ROUTES.login} element={<Placeholder title="Sign in" />} />
         <Route path={ROUTES.register} element={<Placeholder title="Create an account" />} />
