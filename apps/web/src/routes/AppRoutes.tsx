@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from '../components/layout/Layout';
+import { AuthCallback } from '../pages/AuthCallback';
 import { Cart } from '../pages/Cart';
 import { Catalog } from '../pages/Catalog';
 import { Checkout } from '../pages/Checkout';
@@ -22,7 +23,7 @@ export function AppRoutes() {
         <Route path={ROUTES.cart} element={<Cart />} />
         <Route path={ROUTES.login} element={<Login />} />
         <Route path={ROUTES.register} element={<Register />} />
-        <Route path={ROUTES.authCallback} element={<Placeholder title="Signing you in" />} />
+        <Route path={ROUTES.authCallback} element={<AuthCallback />} />
 
         {/* signed in: the cart belongs to an account, so checkout and orders need one */}
         <Route element={<ProtectedRoute />}>

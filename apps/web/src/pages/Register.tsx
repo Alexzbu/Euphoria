@@ -6,6 +6,8 @@ import {
   MIN_PASSWORD_LENGTH,
   type RegisterValues,
 } from '../features/auth/schemas';
+import { GoogleButton } from '../features/auth/GoogleButton';
+import { GOOGLE_AUTH_ENABLED } from '../features/auth/googleAuth';
 import { PasswordField } from '../features/auth/PasswordField';
 import { redirectTarget } from '../features/auth/redirectTarget';
 import { useAuth } from '../features/auth/useAuth';
@@ -100,6 +102,10 @@ export function Register() {
             {submitting ? 'Creating account…' : 'Sign up'}
           </button>
         </form>
+
+        {GOOGLE_AUTH_ENABLED && (
+          <GoogleButton destination={destination} label="Sign up with Google" />
+        )}
 
         <p className={styles.switch}>
           Already have an account?{' '}

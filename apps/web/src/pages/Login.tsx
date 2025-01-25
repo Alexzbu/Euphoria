@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { fieldErrors, loginSchema, type LoginValues } from '../features/auth/schemas';
+import { GoogleButton } from '../features/auth/GoogleButton';
+import { GOOGLE_AUTH_ENABLED } from '../features/auth/googleAuth';
 import { PasswordField } from '../features/auth/PasswordField';
 import { redirectTarget } from '../features/auth/redirectTarget';
 import { useAuth } from '../features/auth/useAuth';
@@ -89,6 +91,10 @@ export function Login() {
             {submitting ? 'Signing in…' : 'Sign in'}
           </button>
         </form>
+
+        {GOOGLE_AUTH_ENABLED && (
+          <GoogleButton destination={destination} label="Continue with Google" />
+        )}
 
         <p className={styles.switch}>
           New here?{' '}
