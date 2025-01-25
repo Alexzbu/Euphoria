@@ -4,8 +4,10 @@ import { Cart } from '../pages/Cart';
 import { Catalog } from '../pages/Catalog';
 import { Checkout } from '../pages/Checkout';
 import { Home } from '../pages/Home';
+import { Login } from '../pages/Login';
 import { NotFound } from '../pages/NotFound';
 import { Product } from '../pages/Product';
+import { Register } from '../pages/Register';
 import { Placeholder } from '../pages/Placeholder';
 import { ProtectedRoute } from './ProtectedRoute';
 import { ROUTES } from './paths';
@@ -18,8 +20,8 @@ export function AppRoutes() {
         <Route path={ROUTES.catalog} element={<Catalog />} />
         <Route path={ROUTES.product} element={<Product />} />
         <Route path={ROUTES.cart} element={<Cart />} />
-        <Route path={ROUTES.login} element={<Placeholder title="Sign in" />} />
-        <Route path={ROUTES.register} element={<Placeholder title="Create an account" />} />
+        <Route path={ROUTES.login} element={<Login />} />
+        <Route path={ROUTES.register} element={<Register />} />
         <Route path={ROUTES.authCallback} element={<Placeholder title="Signing you in" />} />
 
         {/* signed in: the cart belongs to an account, so checkout and orders need one */}
