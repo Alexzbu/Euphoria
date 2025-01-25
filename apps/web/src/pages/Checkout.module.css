@@ -1,0 +1,117 @@
+.page {
+  composes: container from '../styles/layout.module.css';
+  padding-block: var(--space-7);
+}
+
+.title {
+  margin-bottom: var(--space-6);
+  font-size: var(--text-xl);
+}
+
+.layout {
+  display: grid;
+  gap: var(--space-6);
+  align-items: start;
+  grid-template-columns: 1fr 20rem;
+}
+
+.panel {
+  padding: var(--space-5);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+.panelTitle {
+  margin-bottom: var(--space-4);
+  font-size: var(--text-md);
+}
+
+.summary {
+  position: sticky;
+  top: 5rem;
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface-sunken);
+}
+
+.line {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+  font-size: var(--text-sm);
+}
+
+.lineName {
+  color: var(--color-ink-muted);
+}
+
+.total {
+  display: flex;
+  justify-content: space-between;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+  font-weight: var(--weight-bold);
+}
+
+.error {
+  margin-bottom: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-danger-soft);
+  color: var(--color-danger);
+  font-size: var(--text-sm);
+}
+
+.notice {
+  padding: var(--space-4);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-ink-muted);
+  font-size: var(--text-sm);
+}
+
+.confirmation {
+  max-width: 34rem;
+  margin-inline: auto;
+  padding: var(--space-8) var(--space-5);
+  text-align: center;
+}
+
+.orderNumber {
+  display: inline-block;
+  margin-block: var(--space-4);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-surface-sunken);
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+}
+
+.text {
+  color: var(--color-ink-muted);
+}
+
+.button {
+  display: inline-block;
+  margin-top: var(--space-5);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-accent);
+  color: var(--color-ink-inverse);
+  font-weight: var(--weight-semibold);
+}
+
+.button:hover {
+  background-color: var(--color-accent-strong);
+}
+
+@media (max-width: 62em) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .summary {
+    position: static;
+  }
+}
