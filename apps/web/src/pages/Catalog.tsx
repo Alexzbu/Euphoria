@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ActiveFilters } from '../features/catalog/ActiveFilters';
 import { FilterPanel } from '../features/catalog/FilterPanel';
-import { Pagination } from '../features/catalog/Pagination';
+import { Pagination } from '../components/Pagination';
 import { ProductCard } from '../features/catalog/ProductCard';
 import { useCatalogQuery, DEFAULT_PAGE_SIZE } from '../features/catalog/catalogQuery';
 import { useFilters } from '../features/catalog/useFilters';

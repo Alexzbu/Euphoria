@@ -1,5 +1,5 @@
-import { Icon } from '../../components/Icon';
-import { cx } from '../../lib/cx';
+import { Icon } from './Icon';
+import { cx } from '../lib/cx';
 import styles from './Pagination.module.css';
 
 interface Props {

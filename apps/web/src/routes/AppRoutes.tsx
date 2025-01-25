@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from '../components/layout/Layout';
+import { Account } from '../pages/Account';
 import { AuthCallback } from '../pages/AuthCallback';
 import { Cart } from '../pages/Cart';
 import { Catalog } from '../pages/Catalog';
@@ -28,7 +29,7 @@ export function AppRoutes() {
         {/* signed in: the cart belongs to an account, so checkout and orders need one */}
         <Route element={<ProtectedRoute />}>
           <Route path={ROUTES.checkout} element={<Checkout />} />
-          <Route path={ROUTES.account} element={<Placeholder title="Your account" />} />
+          <Route path={ROUTES.account} element={<Account />} />
         </Route>
 
         <Route element={<ProtectedRoute require="admin" />}>
