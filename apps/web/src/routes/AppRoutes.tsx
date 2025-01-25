@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from '../components/layout/Layout';
+import { Cart } from '../pages/Cart';
 import { Catalog } from '../pages/Catalog';
 import { Home } from '../pages/Home';
 import { NotFound } from '../pages/NotFound';
@@ -15,7 +16,7 @@ export function AppRoutes() {
         <Route path={ROUTES.home} element={<Home />} />
         <Route path={ROUTES.catalog} element={<Catalog />} />
         <Route path={ROUTES.product} element={<Product />} />
-        <Route path={ROUTES.cart} element={<Placeholder title="Cart" />} />
+        <Route path={ROUTES.cart} element={<Cart />} />
         <Route path={ROUTES.login} element={<Placeholder title="Sign in" />} />
         <Route path={ROUTES.register} element={<Placeholder title="Create an account" />} />
         <Route path={ROUTES.authCallback} element={<Placeholder title="Signing you in" />} />
