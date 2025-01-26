@@ -1,7 +1,7 @@
 import { HttpResponse, http, type HttpHandler } from 'msw';
 import { API_URL } from '../../src/config/env';
 import { makeCart, makeProduct, makeProductDetail, makePage, taxonomy } from '../fixtures';
-import type { TaxonomyKind } from '../../src/api/types';
+import type { TaxonomyKind, User } from '../../src/api/types';
 
 const url = (path: string): string => `${API_URL}${path}`;
 
@@ -13,6 +13,11 @@ export function apiError(status: number, code: string, message = code): HttpResp
 }
 
 export const unauthorized = (): HttpResponse => apiError(401, 'UNAUTHENTICATED', 'Not signed in');
+
+// swap the default anonymous /auth/me for a signed-in one:
+//   server.use(signedInAs(customer))
+export const signedInAs = (user: User): HttpHandler =>
+  http.get(url('/auth/me'), () => HttpResponse.json({ user }));
 
 export const products = [
   makeProduct(),
