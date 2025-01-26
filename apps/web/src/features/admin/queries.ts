@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
 import * as admin from '../../api/admin';
 import { catalogKeys } from '../catalog/queries';
-import type { AdminProduct, AdminVariant } from '../../api/types';
+import type { AdminProduct, AdminVariant, TaxonomyKind } from '../../api/types';
 
 export const adminKeys = {
   variants: (productId: string) => ['admin', 'variants', productId] as const,
@@ -76,4 +76,29 @@ export function useUpdateVariant(productId: string) {
 
 export function useDeleteVariant(productId: string) {
   return useVariantMutation((id: string) => admin.deleteVariant(id), productId);
+}
+
+// every taxonomy edit changes the filter panel and the product form's selects, and
+// both read the one cached map
+function useTaxonomyMutation<TInput>(run: (input: TInput) => Promise<unknown>) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: run,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: catalogKeys.taxonomy }),
+  });
+}
+
+export function useCreateTaxonomy(kind: TaxonomyKind) {
+  return useTaxonomyMutation((name: string) => admin.createTaxonomy(kind, name));
+}
+
+export function useRenameTaxonomy(kind: TaxonomyKind) {
+  return useTaxonomyMutation(({ id, name }: { id: string; name: string }) =>
+    admin.renameTaxonomy(kind, id, name),
+  );
+}
+
+export function useDeleteTaxonomy(kind: TaxonomyKind) {
+  return useTaxonomyMutation((id: string) => admin.deleteTaxonomy(kind, id));
 }
