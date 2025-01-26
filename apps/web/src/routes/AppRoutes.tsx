@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from '../components/layout/Layout';
 import { Account } from '../pages/Account';
+import { AdminProducts } from '../pages/AdminProducts';
 import { AuthCallback } from '../pages/AuthCallback';
 import { Cart } from '../pages/Cart';
 import { Catalog } from '../pages/Catalog';
@@ -34,7 +35,7 @@ export function AppRoutes() {
 
         <Route element={<ProtectedRoute require="admin" />}>
           <Route path={ROUTES.admin} element={<Navigate to={ROUTES.adminProducts} replace />} />
-          <Route path={ROUTES.adminProducts} element={<Placeholder title="Products" />} />
+          <Route path={ROUTES.adminProducts} element={<AdminProducts />} />
           <Route path={ROUTES.adminTaxonomy} element={<Placeholder title="Taxonomy" />} />
         </Route>
 

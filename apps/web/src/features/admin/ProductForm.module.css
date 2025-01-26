@@ -1,0 +1,58 @@
+.form {
+  display: grid;
+  gap: var(--space-5);
+  max-width: 46rem;
+}
+
+.row {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: 1fr 1fr;
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.image {
+  position: relative;
+  width: 6rem;
+}
+
+.thumb {
+  width: 6rem;
+  height: 8rem;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-sunken);
+  object-fit: cover;
+}
+
+.removed {
+  opacity: 0.35;
+}
+
+.imageButton {
+  width: 100%;
+  margin-top: var(--space-1);
+  border: 0;
+  background: none;
+  color: var(--color-ink-muted);
+  font-size: var(--text-xs);
+}
+
+.imageButton:hover {
+  color: var(--color-danger);
+}
+
+@media (max-width: 47em) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+}

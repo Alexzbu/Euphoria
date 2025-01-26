@@ -18,7 +18,13 @@ function Line({ line }: { line: CartLine }) {
 
   return (
     <div className={styles.line}>
-      <img className={styles.image} src={line.product.images[0] ?? ''} alt="" />
+      {/* an empty src makes the browser fetch the page again, so a line without a
+          photo gets an empty box instead */}
+      {line.product.images[0] ? (
+        <img className={styles.image} src={line.product.images[0]} alt="" />
+      ) : (
+        <div className={styles.image} />
+      )}
 
       <div>
         <Link className={styles.name} to={productPath(line.product.id)}>

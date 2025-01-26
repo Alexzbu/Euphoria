@@ -50,6 +50,17 @@ export interface ProductDetail extends ProductSummary {
   variants: VariantOption[];
 }
 
+// what admin reads answer with: the shopper's view plus the fields only an
+// operator has any use for
+export interface AdminProduct extends ProductSummary {
+  isActive: boolean;
+  updatedAt: string;
+}
+
+export interface AdminVariant extends VariantOption {
+  productId: string;
+}
+
 export interface Page<T> {
   items: T[];
   page: number;
