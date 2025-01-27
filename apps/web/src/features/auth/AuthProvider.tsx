@@ -41,10 +41,18 @@ export function AuthProvider({ children }: Props) {
 
   // everything cached was fetched as whoever was signed in a moment ago. carts and
   // orders are per-user, so the safe move on any identity change is to drop the lot.
+  //
+  // reset, not clear. removing a query doesn't notify the observers already watching
+  // it, so clearing the cache would strand this provider's own /auth/me observer on
+  // the query it had before and the new identity would never arrive. reset drops the
+  // data and refetches whatever is on screen, and the identity itself is set here
+  // rather than refetched.
   const replaceIdentity = useCallback(
     (next: User | null) => {
-      queryClient.clear();
       queryClient.setQueryData(AUTH_QUERY_KEY, next);
+      void queryClient.resetQueries({
+        predicate: (query) => query.queryKey[0] !== AUTH_QUERY_KEY[0],
+      });
     },
     [queryClient],
   );
