@@ -9,5 +9,5 @@
     "noEmit": true,
     "tsBuildInfoFile": "dist/.tsbuildinfo-tests"
   },
-  "include": ["tests", "src", "vitest.config.ts"]
+  "include": ["tests", "e2e", "src", "vitest.config.ts", "playwright.config.ts"]
 }

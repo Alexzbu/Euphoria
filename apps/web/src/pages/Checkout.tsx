@@ -29,7 +29,7 @@ function Confirmation({ order }: { order: Order | null }) {
 
 export function Checkout() {
   const [params] = useSearchParams();
-  const { cart } = useCart();
+  const { cart, isPending: cartPending } = useCart();
   const queryClient = useQueryClient();
 
   const [order, setOrder] = useState<Order | null>(null);
@@ -60,6 +60,18 @@ export function Checkout() {
 
   // stripe sends the browser back here after a redirect payment method
   if (params.get('redirect_status') === 'succeeded') return <Confirmation order={order} />;
+
+  // the cart may still be arriving, or still merging in from before sign-in. calling
+  // it empty now would send someone who has just filled one back to the catalog.
+  if (!order && cartPending) {
+    return (
+      <div className={styles.page}>
+        <p className={styles.text} role="status">
+          Fetching your cart…
+        </p>
+      </div>
+    );
+  }
 
   if (!order && cart.items.length === 0) {
     return (

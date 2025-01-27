@@ -69,6 +69,13 @@ export default tseslint.config(
     languageOptions: { globals: { ...globals.node } },
   },
 
+  // playwright drives the browser from node. the specs themselves run outside the
+  // page, so browser globals would be the wrong ones to have in scope here.
+  {
+    files: ['apps/web/playwright.config.ts', 'apps/web/e2e/**/*.ts'],
+    languageOptions: { globals: { ...globals.node } },
+  },
+
   // config files run in node before any build step and may use commonjs globals
   {
     files: ['**/*.config.{js,mjs,cjs,ts}', '**/*.cjs'],

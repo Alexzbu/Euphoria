@@ -197,6 +197,51 @@ describe('useGuestCartMerge', () => {
     expect(getGuestCart()).toHaveLength(0);
   });
 
+  // the server's cart is empty until the merge lands. a page told the cart is
+  // settled will tell someone who has just filled one that it's empty.
+  it('keeps the cart pending until the merge comes back', async () => {
+    let release = () => {};
+    const held = new Promise<void>((resolve) => (release = resolve));
+
+    server.use(
+      signedInAs(customer),
+      http.get(`${API_URL}/cart`, () => HttpResponse.json(makeCart())),
+      http.post(`${API_URL}/cart/merge`, async () => {
+        await held;
+        return HttpResponse.json(makeCart([makeCartLine({ quantity: 2 })]));
+      }),
+    );
+
+    const guest = renderHook(() => useAddToCart(), { wrapper: createWrapper() });
+    await act(async () => {
+      await guest.result.current.mutateAsync({ quantity: 2, line });
+    });
+    guest.unmount();
+
+    const { result } = renderHook(
+      () => {
+        useGuestCartMerge();
+        return useCart();
+      },
+      { wrapper: createWrapper() },
+    );
+
+    await waitFor(() => {
+      expect(result.current.isGuest).toBe(false);
+    });
+    expect(result.current.isPending).toBe(true);
+
+    await act(async () => {
+      release();
+      await held;
+    });
+
+    await waitFor(() => {
+      expect(result.current.isPending).toBe(false);
+    });
+    expect(result.current.cart.totalItems).toBe(2);
+  });
+
   it('stays quiet when there is nothing to merge', async () => {
     let merges = 0;
     server.use(

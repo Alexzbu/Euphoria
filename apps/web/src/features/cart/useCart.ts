@@ -1,5 +1,6 @@
 import { useMemo, useSyncExternalStore } from 'react';
 import {
+  useIsMutating,
   useMutation,
   useQuery,
   useQueryClient,
@@ -21,7 +22,7 @@ import {
 } from './guestCart';
 import type { Cart } from '../../api/types';
 
-export const cartKeys = { cart: ['cart'] as const };
+export const cartKeys = { cart: ['cart'] as const, merge: ['cart', 'merge'] as const };
 
 const EMPTY_CART: Cart = { items: [], totalItems: 0, subtotalCents: 0 };
 
@@ -47,9 +48,17 @@ export function useCart(): CartState {
     enabled: status === 'authenticated',
   });
 
+  const merging = useIsMutating({ mutationKey: cartKeys.merge }) > 0;
+
   if (isGuest) return { cart: guestCart, isPending: false, isGuest };
 
-  return { cart: data ?? EMPTY_CART, isPending, isGuest };
+  // a cart collected before sign-in is still on its way to the server, either
+  // waiting for the merge to start or waiting for it to come back. the server's
+  // answer right now is an empty cart, and a page told that is settled will say
+  // so to someone who has just filled one.
+  const settling = merging || guestLines.length > 0;
+
+  return { cart: data ?? EMPTY_CART, isPending: isPending || settling, isGuest };
 }
 
 export interface AddToCartInput {
@@ -123,6 +132,7 @@ export function useGuestCartMerge(): void {
   const { status } = useAuth();
   const queryClient = useQueryClient();
   const merge = useMutation({
+    mutationKey: cartKeys.merge,
     mutationFn: async (lines: GuestCartLine[]) => {
       const cart = await mergeCart(
         lines.map((line) => ({ variantId: line.variantId, quantity: line.quantity })),
