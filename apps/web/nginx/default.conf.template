@@ -1,0 +1,68 @@
+# Rendered at container start by the nginx image's own entrypoint, which runs
+# envsubst over /etc/nginx/templates/*.template. NGINX_ENVSUBST_FILTER in the
+# Dockerfile restricts that to API_* names, so nginx's own $uri, $host and friends
+# survive untouched.
+
+server {
+    listen 80;
+    server_name _;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # an upload is a few MB of image, and the default 1m rejects it here before the
+    # api ever sees it
+    client_max_body_size 10m;
+
+    server_tokens off;
+
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_types text/plain text/css application/javascript application/json image/svg+xml font/woff2;
+
+    # add_header is inherited only by locations that declare none of their own, so
+    # anything below that needs an add_header would silently drop these two. the
+    # cache rules are written with `expires` for exactly that reason.
+    add_header X-Content-Type-Options nosniff always;
+    add_header Referrer-Policy strict-origin-when-cross-origin always;
+
+    # for the container healthcheck. answered here so it doesn't depend on the api
+    # being up, which is a separate question from whether this container serves.
+    location = /healthz {
+        access_log off;
+        return 200 "ok\n";
+    }
+
+    # vite fingerprints these, so the bytes behind a given name never change
+    location /assets/ {
+        expires 1y;
+        try_files $uri =404;
+    }
+
+    # the one file that must not be cached: it's what names the current
+    # fingerprinted bundle, and a stale copy pins the browser to a build that no
+    # longer exists. `expires -1` sends Cache-Control: no-cache.
+    location = /index.html {
+        expires -1;
+    }
+
+    # client-side routing, so any path that isn't a real file is the app's to
+    # resolve. no $uri/ in the list, a directory listing is never a route.
+    location / {
+        try_files $uri /index.html;
+    }
+
+    location /api/ {
+        proxy_pass ${API_UPSTREAM};
+        include /etc/nginx/snippets/proxy.conf;
+    }
+
+    # disk-backed images are served by the api process, so they proxy like the rest
+    # of it. an object-store deployment sets an absolute S3_PUBLIC_BASE_URL and
+    # nothing ever reaches this block.
+    location /media/ {
+        proxy_pass ${API_UPSTREAM};
+        include /etc/nginx/snippets/proxy.conf;
+    }
+}

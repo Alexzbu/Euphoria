@@ -31,5 +31,22 @@ COPY apps/web/src apps/web/src
 RUN npm run build --workspace @euphoria/web
 
 FROM nginx:1.27-alpine AS runtime
+# proxy_ssl_verify needs a trust store to verify against, and the base image
+# carries no CA bundle
+RUN apk add --no-cache ca-certificates
+
+# where the api answers. compose points this at the api service; a deployment
+# behind TLS can point it at an https URL and get certificate verification.
+ENV API_UPSTREAM=http://api:3000
+# without this, envsubst would substitute every name it knows and eat nginx's own
+# $uri, $host, $remote_addr
+ENV NGINX_ENVSUBST_FILTER=^API_
+
+COPY apps/web/nginx/proxy.conf /etc/nginx/snippets/proxy.conf
+COPY apps/web/nginx/default.conf.template /etc/nginx/templates/default.conf.template
 COPY --from=build /app/apps/web/dist /usr/share/nginx/html
+
 EXPOSE 80
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget -qO- http://127.0.0.1/healthz >/dev/null || exit 1
