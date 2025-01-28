@@ -1,0 +1,36 @@
+# The build context is the repo root, so everything not needed by a stage listed
+# in a Dockerfile is pure upload cost. Doc/ alone is 36MB.
+node_modules
+**/node_modules
+
+dist
+build
+.vite
+*.tsbuildinfo
+
+Doc
+.git
+.github
+.idea
+.vscode
+.husky
+
+coverage
+playwright-report
+test-results
+blob-report
+
+.env
+.env.*
+uploads
+
+*.log
+npm-debug.log*
+.DS_Store
+
+Dockerfile
+**/Dockerfile
+.dockerignore
+docker-compose.yml
+README.md
+CLAUDE.md
