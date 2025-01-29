@@ -1,0 +1,88 @@
+# Local stack: mongo, the api, and nginx serving the built app in front of both.
+#
+#   docker compose up --build          -> http://localhost:8080
+#   docker compose run --rm api node dist/db/seed.js
+#
+# Mongo and the api publish on 127.0.0.1 only, so `npm run seed` and a mongo shell
+# work from the host without either being reachable from the network.
+
+name: euphoria
+
+services:
+  mongo:
+    image: mongo:8.0
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:27017:27017'
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      # the api is started by depends_on: service_healthy, and mongo accepts TCP
+      # connections a good few seconds before it will answer a command
+      test: ['CMD', 'mongosh', '--quiet', '--eval', "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    # node registers its own SIGTERM handler, but it's still PID 1 here and reaps
+    # nothing. sharp forks for some conversions.
+    init: true
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      - '127.0.0.1:3000:3000'
+    environment:
+      NODE_ENV: production
+      PORT: '3000'
+      LOG_LEVEL: info
+      # the origin the browser actually loads the app from, which is nginx
+      WEB_ORIGIN: http://localhost:8080
+      MONGODB_URI: mongodb://mongo:27017/euphoria
+      # local-only, and overridable from the shell. a deployment supplies its own.
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-compose-development-access-secret-not-for-production}
+      JWT_ACCESS_TTL: 15m
+      REFRESH_TOKEN_TTL_DAYS: '30'
+      # the stack is served over plain http on localhost, and a Secure cookie the
+      # browser refuses to send looks exactly like a login that silently expired
+      COOKIE_SECURE: 'false'
+      COOKIE_SAME_SITE: lax
+      STORAGE_DRIVER: disk
+      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@euphoria.local}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-local-admin-password}
+      # no value on purpose. compose forwards these from the shell if they're set
+      # and leaves them unset otherwise, and unset is what the config schema wants:
+      # an empty string is a key that fails the sk_ / whsec_ check at boot.
+      STRIPE_SECRET_KEY:
+      STRIPE_WEBHOOK_SECRET:
+    volumes:
+      # named, not a bind mount. uploads are written by the image's `node` user and
+      # a host directory would arrive owned by whoever ran compose.
+      - api-uploads:/app/uploads
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        # baked into the bundle at build time, so changing it means a rebuild. the
+        # browser resolves it against the host, not the compose network.
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8080/api}
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_started
+    ports:
+      - '8080:80'
+    environment:
+      API_UPSTREAM: http://api:3000
+
+volumes:
+  mongo-data:
+  api-uploads:
