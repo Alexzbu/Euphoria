@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# a new push on a ref cancels whatever run is still in flight for it
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # npm ci is lockfile-driven, and nothing here needs a package it doesn't already
+  # name. keep it from reaching for anything else.
+  NPM_CONFIG_AUDIT: false
+  NPM_CONFIG_FUND: false
+
+jobs:
+  verify:
+    name: Lint, typecheck, test, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      # ci, not install: it installs exactly the lockfile and fails if package.json
+      # has drifted from it, which is the thing a build machine should refuse to
+      # paper over
+      - run: npm ci
+
+      - run: npm run lint
+
+      - run: npm run typecheck
+
+      # the api suite starts its own in-memory mongod, so there's no service
+      # container here
+      - run: npm test
+
+      - run: npm run build
+
+  e2e:
+    name: End-to-end
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      # chromium alone: it's the only project the playwright config defines, and
+      # --with-deps pulls the system libraries the runner image lacks
+      - run: npx playwright install --with-deps chromium
+        working-directory: apps/web
+
+      - run: npm run test:e2e --workspace @euphoria/web
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: apps/web/playwright-report
+          retention-days: 7
+
+  images:
+    name: Container images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # nothing is pushed. this is here so a Dockerfile that stopped building gets
+      # caught by CI and not by someone running compose.
+      - run: docker build -f apps/api/Dockerfile -t euphoria-api:ci .
+
+      - run: docker build -f apps/web/Dockerfile -t euphoria-web:ci .
