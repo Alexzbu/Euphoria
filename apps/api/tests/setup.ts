@@ -15,6 +15,11 @@ process.env.COOKIE_SECURE = 'false';
 process.env.COOKIE_SAME_SITE = 'lax';
 process.env.LOGIN_MAX_ATTEMPTS = '5';
 process.env.LOGIN_LOCKOUT_MINUTES = '15';
+// the limiter's counters are per process and nothing resets them between files, so
+// production numbers would start refusing requests partway through the suite. the
+// limits themselves are tested against their own app, in rateLimit.test.ts.
+process.env.RATE_LIMIT_MAX = '100000';
+process.env.AUTH_RATE_LIMIT_MAX = '100000';
 
 let mongod: MongoMemoryServer;
 

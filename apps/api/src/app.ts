@@ -16,10 +16,18 @@ import { stripeWebhookRouter } from './routes/stripeWebhook.js';
 import { adminProductRouter } from './routes/adminProducts.js';
 import { adminVariantRouter } from './routes/adminVariants.js';
 import { adminTaxonomyRouter } from './routes/adminTaxonomy.js';
+import { apiLimiter, authLimiter } from './middleware/rateLimit.js';
 import { imageStorage } from './storage/imageStorage.js';
 
 export function createApp(): Express {
   const app = express();
+
+  // Set before anything reads req.ip. A hop count, not `true`: express walks
+  // X-Forwarded-For from the socket end and stops after this many entries, so
+  // anything a client prepended to the header is never reached. With 0 nothing is
+  // trusted and req.ip is the peer address, which is right when the process is
+  // exposed directly.
+  app.set('trust proxy', env.TRUST_PROXY_HOPS);
 
   // first in the chain, so even requests rejected downstream get logged
   app.use(requestLogger);
@@ -34,6 +42,11 @@ export function createApp(): Express {
   // ahead of the json parser, deliberately. the webhook verifies a signature over
   // the raw body, and that's gone once a parser has turned it into an object.
   app.use('/api/stripe', stripeWebhookRouter);
+
+  // after the webhook mount, deliberately. stripe retries a delivery it couldn't
+  // hand over, and throttling those turns one busy minute into a lost payment
+  // event. the signature check is what guards that route.
+  app.use('/api', apiLimiter);
 
   app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: false }));
@@ -61,7 +74,7 @@ export function createApp(): Express {
 
   // outside /api, probes shouldn't have to know the api's routing conventions
   app.use(healthRouter);
-  app.use('/api/auth', authRouter);
+  app.use('/api/auth', authLimiter, authRouter);
   app.use('/api/products', productRouter);
   app.use('/api/taxonomy', taxonomyRouter);
   app.use('/api/cart', cartRouter);

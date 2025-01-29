@@ -28,6 +28,20 @@ const envSchema = z
     LOGIN_MAX_ATTEMPTS: z.coerce.number().int().min(1).max(100).default(5),
     LOGIN_LOCKOUT_MINUTES: z.coerce.number().int().min(1).max(1440).default(15),
 
+    // how many reverse proxies sit in front of this process. express counts hops
+    // from the socket inward, so 1 behind one nginx and 0 when nothing is in front.
+    // a number and never a boolean: `trust proxy: true` trusts the entire
+    // X-Forwarded-For chain, and the left end of that chain is whatever the client
+    // typed, so every rate limit becomes one header away from bypassed.
+    TRUST_PROXY_HOPS: z.coerce.number().int().min(0).max(10).default(0),
+
+    RATE_LIMIT_WINDOW_MINUTES: z.coerce.number().int().min(1).max(1440).default(15),
+    RATE_LIMIT_MAX: z.coerce.number().int().min(1).default(600),
+    // tighter, and per IP. the per-account lockout above is the other half: one
+    // stops a single account being ground down, this stops one client working
+    // through a list of them.
+    AUTH_RATE_LIMIT_MAX: z.coerce.number().int().min(1).default(30),
+
     COOKIE_SECURE: booleanFlag('true'),
     COOKIE_SAME_SITE: z.enum(['strict', 'lax', 'none']).default('lax'),
     COOKIE_DOMAIN: z.string().min(1).optional(),

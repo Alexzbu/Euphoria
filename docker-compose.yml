@@ -53,6 +53,9 @@ services:
       # browser refuses to send looks exactly like a login that silently expired
       COOKIE_SECURE: 'false'
       COOKIE_SAME_SITE: lax
+      # one hop, the nginx in front. without it every request keys on nginx's
+      # address and the rate limiter throttles all clients as one.
+      TRUST_PROXY_HOPS: '1'
       STORAGE_DRIVER: disk
       SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@euphoria.local}
       SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-local-admin-password}
