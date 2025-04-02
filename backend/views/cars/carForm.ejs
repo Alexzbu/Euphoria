@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+	<meta charset="UTF-8">
+	<title>
+		<%= car?.id ? 'Оновити автомобіль' : 'Додати автомобіль' %>
+	</title>
+	<link rel="stylesheet" href="/stylesheets/styles.css">
+	<script src="/javascripts/HandlerImageFiles.js"></script>
+</head>
+
+<body class="body">
+	<%- include('../sections/header.ejs')%>
+
+		<div class="container">
+			<h1 class="title">
+				<%= car?.id ? 'Оновити автомобіль' : 'Додати новий автомобіль' %>
+			</h1>
+			<form class="form" action="/cars/add/<%= car?.id%>" enctype="multipart/form-data" method="POST">
+				<label class="form__label" for="brand">Марка:</label>
+				<input class="form__input" type="text" name="brand" value="<%= car?.brand%>">
+				<% if (errors && errors.brand) { %>
+					<ul class="error-messages">
+						<% errors.brand.forEach(msg=> { %>
+							<li>
+								<%= msg %>
+							</li>
+						<% }) %>
+					</ul>
+				<% } %>
+
+				<label class="form__label" for="year">Рік випуску:</label>
+				<input class="form__input" type="number" name="year" value="<%= car?.year%>">
+				<% if (errors && errors.year) { %>
+					<ul class="error-messages">
+						<% errors.year.forEach(msg=> { %>
+							<li>
+								<%= msg %>
+							</li>
+						<% }) %>
+					</ul>
+				<% } %>
+
+				<label class="form__label" for="number">Номер:</label>
+				<input class="form__input" type="text" name="number" value="<%= car?.number%>">
+				<% if (errors && errors.number) { %>
+					<ul class="error-messages">
+						<% errors.number.forEach(msg=> { %>
+							<li>
+								<%= msg %>
+							</li>
+						<% }) %>
+					</ul>
+				<% } %>
+
+				<label class="form__label" for="description">Опис:</label>
+				<textarea class="form__textarea" name="description"><%= car?.description %></textarea>
+				<% if (errors && errors.description) { %>
+					<ul class="error-messages">
+						<% errors.description.forEach(msg=> { %>
+							<li>
+								<%= msg %>
+							</li>
+						<% }) %>
+					</ul>
+				<% } %>
+
+				<label class="form__label" for="location">Місце знаходження:</label>
+				<div class="form__select-wrapper">
+					<select name="location" id="location" class="form__select">
+						<% locations.forEach(location=> { %>
+							<option <%=car?.location.id===location.id ? 'selected' : '' %> value="<%= location.id%>">
+									<%= location.title %>
+							</option>
+						<% }) %>
+					</select>
+				</div>
+
+				<label class="form__label" for="image">Зображення:</label>
+				<input class="form__input" type="file" id="carImage" name="carImage"
+					accept="image/*" onchange="handleFileSelect(event, '#imgPreview')" />
+				<input type="hidden" name="existingImagePath" value="<%= car?.image%>" />
+				<% if (errors && errors.carImage) { %>
+					<ul class="error-messages">
+						<% errors.carImage.forEach(msg=> { %>
+							<li>
+								<%= msg %>
+							</li>
+						<% }) %>
+					</ul>
+				<% } %>
+				<img id="imgPreview"
+					src="<%= car && car.image ? '/images/' + car.image : '/images/photo-not-available.jpg' %>"
+					alt="Car Image Preview" class="car-image" />
+				<button class="form__button" type="submit">
+					<%= car?.id ? 'Оновити' : 'Додати' %>
+				</button>
+			</form>
+		</div>
+</body>
+
+</html>

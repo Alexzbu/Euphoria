@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Деталі автомобіля</title>
+  <link rel="stylesheet" href="/stylesheets/styles.css">
+</head>
+<body class="body">
+  <%-include('../sections/header.ejs')%>
+
+  <div class="container">
+    <div class="car-card-deteils">
+      <img src="/images/<%= car.image %>" alt="<%= car.brand %>" class="car-card__image-deteils">
+      <h2 class="car-card__title"><%= car.brand %> (<%= car.year %>)</h2>
+      <p class="car-card__number">Номер: <%= car.number %></p>
+      <p class="car-card__number">Опис: <%= car.description %></p>
+      <p class="car-card__number">Адреса: <%= car.location?.address %></p>
+    </div>
+  </div>
+</body>
+</html>

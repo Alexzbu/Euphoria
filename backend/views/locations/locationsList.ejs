@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Адреси</title>
+  <link rel="stylesheet" href="/stylesheets/styles.css">
+</head>
+<body class="body">
+  <%-include('../sections/header.ejs')%>
+
+  <div class="container"> 
+    <h1 class="title">Наші адреси</h1>
+    <div class="car-list">
+      <% locations.forEach(location => { %>
+        <div class="car-card">
+          <h2 class="car-card__title"><%= location.title %></h2>
+          <p class="car-card__number">Адреса: <%= location.address%></p>
+          <% if(user) { %>
+          <div class="car-card__actions">
+            <a class="car-card__button" href="/locations/delete/<%= location.id %>" class="car-card__link">Видалити</a>
+            <a href="/locations/add/<%= location.id %>" class="car-card__link">Редагувати</a>
+          </div>
+          <% } %>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</body>
+</html>

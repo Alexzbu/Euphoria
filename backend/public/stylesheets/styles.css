@@ -1,0 +1,298 @@
+.body {
+	font-family: Arial, sans-serif;
+	background-color: #f5f5f5;
+	color: #333;
+	margin: 0;
+	padding: 0;
+}
+
+.container {
+	max-width: 900px;
+	margin: 0 auto;
+	padding: 20px;
+}
+
+.titel {
+	color: #333;
+	text-align: center;
+	margin-top: 20px;
+}
+
+.header {
+	display: flex;
+	justify-content: space-between;
+	background-color: #333;
+	padding: 10px 30px;
+}
+
+.nav {
+	display: flex;
+	justify-content: space-around;
+	gap: 40px;
+}
+
+.auth{
+	color:#fff;
+	display: flex;
+	justify-content: space-around;
+	gap: 40px;
+}
+
+.nav__link {
+	color: #fff;
+	text-decoration: none;
+	font-weight: bold;
+	transition: color 0.3s;
+}
+
+.nav__link:hover {
+	color: #4CAF50;
+}
+
+.intro {
+	text-align: center;
+	margin-top: 20px;
+	padding: 20px;
+	background-color: #fff;
+	border-radius: 8px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.intro__title {
+	font-size: 2rem;
+	color: #333;
+}
+
+.intro__text {
+	font-size: 1.1rem;
+	color: #666;
+	margin-top: 10px;
+}
+
+.intro__button {
+	margin-top: 15px;
+	display: inline-block;
+	padding: 10px 20px;
+	background-color: #4CAF50;
+	color: #fff;
+	text-decoration: none;
+	border-radius: 5px;
+	transition: background-color 0.3s;
+}
+
+.intro__button:hover {
+	background-color: #333;
+}
+
+.info {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 20px;
+	margin-top: 30px;
+}
+
+.info__item {
+	flex: 1;
+	min-width: 200px;
+	padding: 20px;
+	background-color: #fff;
+	border-radius: 8px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	text-align: center;
+}
+
+.info__title {
+	font-size: 1.2rem;
+	color: #333;
+}
+
+.info__text {
+	font-size: 1rem;
+	color: #666;
+	margin: 10px 0;
+}
+
+.info__link {
+	display: inline-block;
+	padding: 8px 16px;
+	background-color: #2196F3;
+	color: #fff;
+	text-decoration: none;
+	border-radius: 5px;
+	transition: background-color 0.3s;
+}
+
+.info__link:hover {
+	background-color: #333;
+}
+
+.car-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 20px;
+	justify-content: left;
+}
+
+.car-card {
+	background-color: #fff;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	width: 250px;
+	padding: 15px;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	text-align: center;
+	transition: transform 0.2s;
+}
+
+.car-card-deteils {
+	background-color: #fff;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	width: 100%;
+	padding: 15px;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	text-align: center;
+	transition: transform 0.2s;
+}
+
+.car-card:hover {
+	transform: scale(1.03);
+}
+
+.car-card__image {
+	width: 100%;
+	height: 150px;
+	object-fit: cover;
+	border-radius: 8px;
+}
+
+.car-card__image-deteils {
+	width: 100%;
+	max-height: 600px;
+	object-fit: cover;
+	border-radius: 8px;
+}
+
+.car-card__title {
+	font-size: 1.2rem;
+	color: #555;
+}
+
+.car-card__number {
+	font-size: 0.9rem;
+	color: #777;
+}
+
+.car-card__actions {
+	display: flex;
+	justify-content: space-between;
+	margin-top: 10px;
+}
+
+.car-card__button,
+.car-card__link {
+	padding: 5px 10px;
+	background-color: #4CAF50;
+	color: #fff;
+	border: none;
+	border-radius: 5px;
+	text-decoration: none;
+	font-size: 0.9rem;
+}
+
+.car-card__link {
+	background-color: #2196F3;
+}
+
+.car-card__button:hover,
+.car-card__link:hover {
+	background-color: #333;
+}
+
+.form {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.form__label {
+	font-weight: bold;
+}
+
+.form__input {
+	padding: 8px;
+	font-size: 1rem;
+	border-radius: 4px;
+	border: 1px solid #ccc;
+}
+
+.form__textarea {
+	padding: 8px;
+	font-size: 1rem;
+	border-radius: 4px;
+	border: 1px solid #ccc;
+}
+
+.form__button {
+	width: fit-content;
+	padding: 10px 20px;
+	background-color: #4CAF50;
+	color: #fff;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+}
+
+.error-messages {
+	color: red;
+}
+
+.car-image {
+	max-height: 80px;
+	max-width: 80px;
+}
+
+.form__button:hover {
+	background-color: #333;
+}
+
+.form__select-wrapper {
+	position: relative;
+	display: inline-block;
+	width: 100%;
+	max-width: 300px;
+	margin-top: 8px;
+}
+
+.form__select {
+	width: 100%;
+	padding: 12px 16px;
+	font-size: 16px;
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	appearance: none;
+	background-color: #f9f9f9;
+	color: #333;
+	cursor: pointer;
+}
+
+.form__select-wrapper::after {
+	content: '▼';
+	font-size: 14px;
+	color: #777;
+	position: absolute;
+	right: 12px;
+	top: 50%;
+	transform: translateY(-50%);
+	pointer-events: none;
+}
+
+.form__select:focus {
+	outline: none;
+	border-color: black;
+}
+
+.form__label {
+	font-weight: bold;
+	color: #555;
+}

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Список автомобілів</title>
+  <link rel="stylesheet" href="/stylesheets/styles.css">
+</head>
+
+<body class="body">
+  <%- include('../sections/header.ejs')%>
+
+    <div class="container">
+      <h1 class="title">Список автомобілів автопарку</h1>
+      <div class="car-list">
+        <% cars.forEach(car=> { %>
+          <div class="car-card">
+            <a href="/cars/<%= car.id %>">
+              <img class="car-card__image" src="/images/<%= car.image %>" alt="<%= car.brand %>">
+            </a>
+            <h2 class="car-card__title">
+              <%= car.brand %> (<%= car.year %>)
+            </h2>
+            <p class="car-card__number">Номер: <%= car.number %>
+            </p>
+            <p class="car-card__number">Локація: <%= car.location?.title %>
+            </p>
+            <% if (user) { %>
+            <div class="car-card__actions">
+              <a class="car-card__button" href="/cars/delete/<%= car.id %>" class="car-card__link">Видалити</a>
+              <a href="/cars/add/<%= car.id %>" class="car-card__link">Редагувати</a>
+            </div>
+            <% } %>
+          </div>
+          <% }) %>
+      </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sign in</title>
+  <link rel="stylesheet" href="/stylesheets/styles.css">
+  <script src="/javascripts/HandlerImageFiles.js"></script>
+</head>
+  <body class="body">
+    <%-include('../sections/header.ejs')%>
+
+    <div class="container">
+      <h1 class="title">Sign in</h1>
+      <form class="form" action="/auth/login" method="POST">
+        <label class="form__label" for="username">Email:</label>
+        <input class="form__input" type="text" name="username"/>
+        <label class="form__label" for="password">Password:</label>
+        <input class="form__input" type="password" name="password"/>
+        <% if (messages && messages.length > 0) { %>
+          <ul class="error-messages">
+            <% messages.forEach(message => { %>
+            <li><%= message %></li>
+            <% }) %>
+          </ul>
+          <% } %>
+        <button class="form__button" type="submit">Sign in</button>
+      </form>
+    </div>
+  </body>
+</html>
