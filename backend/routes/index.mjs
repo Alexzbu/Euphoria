@@ -17,13 +17,4 @@ router.use('/cart', cartRoutes)
 router.use('/props', propsRoutes);
 router.use('/auth', authRoutes)
 
-// router.get('/logout', (req, res) => {
-//   req.logout((err) => {
-//     if (err) {
-//       return next(err)
-//     }
-//     res.redirect('/')
-//   })
-// })
-
 export default router

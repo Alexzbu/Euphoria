@@ -1,23 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import apiServer from '../../api/indexApi'
+import { SERVER_ROUTES, ADD } from '../../constants/serverRoutes.mjs'
 import { toast } from "react-hot-toast"
+import { getProps } from '../../utils/getProps.mjs'
 
 const AddProductForm = () => {
    const { id = '' } = useParams()
-   const [name, setName] = useState('')
-   const [price, setPrice] = useState('')
-   const [description, setDescription] = useState('')
-   const [brands, setBrands] = useState([])
-   const [brand, setBrand] = useState('')
-   const [sexs, setSexs] = useState([])
-   const [sex, setSex] = useState('')
-   const [colors, setColors] = useState([])
-   const [color, setColor] = useState('')
-   const [sizes, setSizes] = useState([])
-   const [size, setSize] = useState('')
-   const [categorys, setCategorys] = useState([])
-   const [category, setCategory] = useState('')
+   const [product, setProduct] = useState(null)
+   const [props, setProps] = useState(null)
    // const [errors, setErrors] = useState({})
    const navigate = useNavigate()
    const [images, setImages] = useState([]);
@@ -28,40 +19,12 @@ const AddProductForm = () => {
 
    useEffect(() => {
       const fetchProduct = async () => {
-         // if (id) {
-         //    try {
-         //       const response = await apiServer.get(`/cars/details/${id}`)
-         //       setBrand(response.data.car.brand)
-         //       setYear(response.data.car.year)
-         //       setPrice(response.data.car.price)
-         //       setDescription(response.data.car.description)
-         //       setLocation(response.data.car.location?._id)
-         //    } catch (error) {
-         //       console.error('Error fetching car data:', error)
-         //    }
-         // }
+
       }
       const fetchProps = async () => {
          try {
-            const brandResponse = await apiServer.get('/props/brand')
-            setBrands(brandResponse.data)
-            setBrand(brandResponse.data[0]._id)
-
-            const sexResponse = await apiServer.get('/props/sex')
-            setSexs(sexResponse.data)
-            setSex(sexResponse.data[0]._id)
-
-            const colorResponse = await apiServer.get('/props/color')
-            setColors(colorResponse.data)
-            setColor(colorResponse.data[0]._id)
-
-            const sizeResponse = await apiServer.get('/props/size')
-            setSizes(sizeResponse.data)
-            setSize(sizeResponse.data[0]._id)
-
-            const categoryResponse = await apiServer.get('/props/category')
-            setCategorys(categoryResponse.data)
-            setCategory(categoryResponse.data[0]._id)
+            const props = await getProps()
+            setProps(props)
          } catch (error) {
             console.error('Error fetching props:', error)
          }
@@ -107,21 +70,15 @@ const AddProductForm = () => {
       //    return
       // }
       try {
-         const formData = new FormData();
-         formData.append('name', name);
-         formData.append('price', price);
-         formData.append('description', description);
-         formData.append('brand', brand);
-         formData.append('sex', sex);
-         formData.append('color', color);
-         formData.append('size', size);
-         formData.append('category', category);
+         const formData = new FormData()
          if (images.length > 0) {
             for (let i = 0; i < images.length; i++) {
-               formData.append('productImage', images[i]);
+               formData.append('productImage', images[i])
             }
          }
-         const response = await apiServer.post(`/products/add/${id}`, formData, {
+         formData.append('product', JSON.stringify(product))
+
+         const response = await apiServer.post(`${SERVER_ROUTES.PRODUCTS}${ADD}`, formData, {
             headers: {
                'Content-Type': 'multipart/form-data',
             },
@@ -134,7 +91,6 @@ const AddProductForm = () => {
          if (error.response.status === 401 || 403) {
             toast.error('Access Denied')
          }
-         // setErrors(error.response.data)
          console.error('Error adding product:', error)
       }
    };
@@ -147,8 +103,13 @@ const AddProductForm = () => {
                <label className="form__label">Brand:</label>
                <div className="form__select-wrapper">
                   <div className="form__select-item">
-                     <select value={brand} name="brand" id="brand" className="form__select" onChange={(e) => setBrand(e.target.value)}>
-                        {brands.map((item) => (
+                     <select value={props?.brands?.[0]._id}
+                        name="brand"
+                        id="brand"
+                        className="form__select"
+                        onChange={(e) => setProduct({ ...product, brand: e.target.value })}
+                     >
+                        {props?.brands?.map((item) => (
                            < option value={item._id} key={item._id}>{item.name}</option>
                         ))}
                      </select>
@@ -159,8 +120,13 @@ const AddProductForm = () => {
                <label className="form__label">Sex:</label>
                <div className="form__select-wrapper">
                   <div className="form__select-item">
-                     <select value={sex} name="sex" id="sex" className="form__select" onChange={(e) => setSex(e.target.value)}>
-                        {sexs.map((item) => (
+                     <select value={props?.sexes?.[0]._id}
+                        name="sex"
+                        id="sex"
+                        className="form__select"
+                        onChange={(e) => setProduct({ ...product, sex: e.target.value })}
+                     >
+                        {props?.sexes?.map((item) => (
                            < option value={item._id} key={item._id}>{item.name}</option>
                         ))}
                      </select>
@@ -171,8 +137,12 @@ const AddProductForm = () => {
                <label className="form__label">Color:</label>
                <div className="form__select-wrapper">
                   <div className="form__select-item">
-                     <select value={color} name="color" id="color" className="form__select" onChange={(e) => setColor(e.target.value)}>
-                        {colors.map((item) => (
+                     <select value={props?.colors?.[0]._id}
+                        name="color" id="color"
+                        className="form__select"
+                        onChange={(e) => setProduct({ ...product, color: e.target.value })}
+                     >
+                        {props?.colors?.map((item) => (
                            < option value={item._id} key={item._id}>{item.name}</option>
                         ))}
                      </select>
@@ -183,8 +153,13 @@ const AddProductForm = () => {
                <label className="form__label">Size:</label>
                <div className="form__select-wrapper">
                   <div className="form__select-item">
-                     <select value={size} name="size" id="size" className="form__select" onChange={(e) => setSize(e.target.value)}>
-                        {sizes.map((item) => (
+                     <select value={props?.sizes?.[0]._id}
+                        name="size"
+                        id="size"
+                        className="form__select"
+                        onChange={(e) => setProduct({ ...product, size: e.target.value })}
+                     >
+                        {props?.sizes?.map((item) => (
                            < option value={item._id} key={item._id}>{item.name}</option>
                         ))}
                      </select>
@@ -195,8 +170,12 @@ const AddProductForm = () => {
                <label className="form__label">Category:</label>
                <div className="form__select-wrapper">
                   <div className="form__select-item">
-                     <select value={category} name="category" id="category" className="form__select" onChange={(e) => setCategory(e.target.value)}>
-                        {categorys.map((item) => (
+                     <select value={props?.categories?.[0]._id}
+                        name="category" id="category"
+                        className="form__select"
+                        onChange={(e) => setProduct({ ...product, category: e.target.value })}
+                     >
+                        {props?.categorys?.map((item) => (
                            < option value={item._id} key={item._id}>{item.name}</option>
                         ))}
                      </select>
@@ -208,8 +187,8 @@ const AddProductForm = () => {
                   type="text"
                   id="name"
                   name="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  value={product?.name ?? ""}
+                  onChange={(e) => setProduct({ ...product, name: e.target.value })}
                />
 
                <label className="form__label">Price:</label>
@@ -218,8 +197,8 @@ const AddProductForm = () => {
                   ype="number"
                   id="price"
                   name="price"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
+                  value={product?.price ?? ""}
+                  onChange={(e) => setProduct({ ...product, price: e.target.value })}
                />
 
                <label className="form__label">Description:</label>
@@ -227,8 +206,8 @@ const AddProductForm = () => {
                   className="form__textarea"
                   id="description"
                   name="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  value={product?.description ?? ""}
+                  onChange={(e) => setProduct({ ...product, description: e.target.value })}
                ></textarea>
                <ul>
                   {images.map((file, index) => (

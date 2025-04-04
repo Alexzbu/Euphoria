@@ -1,9 +1,8 @@
-import axios from 'axios';
+import axios from 'axios'
+import { SERVER_ROUTES } from '../constants/serverRoutes.mjs';
 
 const apiServer = axios.create({
-   baseURL: process.env.NODE_ENV === "development"
-      ? process.env.REACT_APP_DEV_API_URL
-      : process.env.REACT_APP_PROD_API_URL,
+   baseURL: SERVER_ROUTES.BASE,
    withCredentials: true,
    headers: {
       'Content-Type': 'application/json',

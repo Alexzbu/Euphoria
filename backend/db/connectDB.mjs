@@ -27,8 +27,8 @@ export default async function () {
          })
          await admin.save()
       }
-      console.log('Успішно підключено до MongoDB')
+      console.log('Successfully Connected To MongoDB')
    } catch (err) {
-      console.error('Помилка підключення до MongoDB:', err)
+      console.error('MongoDB connection error:', err)
    }
 }

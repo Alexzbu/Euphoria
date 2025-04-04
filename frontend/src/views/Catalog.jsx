@@ -1,42 +1,32 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import apiServer from '../api/indexApi'
+import { SERVER_ROUTES } from '../constants/serverRoutes.mjs'
+import { ROUTES } from '../constants/routes.mjs'
 import Loading from '../components/Loading'
-import { userType } from '../constants/userType.mjs'
+import { USER_TYPE } from '../constants/userType.mjs'
 import { filterSpoller } from '../utils/spollers/filterSpoller.mjs'
 import PriceFilter from '../components/PriceFilter'
+import { getProps } from '../utils/getProps.mjs'
 
 const Catalog = ({ user, search }) => {
    const [products, setProducts] = useState([])
    const [filter, setFilter] = useState({})
-   const [categories, setCategories] = useState([])
-   const [colors, setColors] = useState([])
-   const [sizes, setSizes] = useState([])
-   const [brands, setBrands] = useState([])
+   const [props, setProps] = useState(null)
    const [loading, setLoading] = useState(false)
-
 
    useEffect(() => {
       filterSpoller()
       const fetchData = async () => {
          try {
             setLoading(true)
-            const response = await apiServer.get('/products', {
+            const response = await apiServer.get(SERVER_ROUTES.PRODUCTS, {
                params: { filter, search }
             })
             setProducts(response.data)
-            if (categories.length === 0) {
-               const [categoryResponse, colorResponse, sizeResponse, brandResponse] = await Promise.all([
-                  apiServer.get('/props/category'),
-                  apiServer.get('/props/color'),
-                  apiServer.get('/props/size'),
-                  apiServer.get('/props/brand')
-               ]);
-
-               setCategories(categoryResponse.data);
-               setColors(colorResponse.data);
-               setSizes(sizeResponse.data);
-               setBrands(brandResponse.data);
+            if (!props?.categories?.length > 0) {
+               const fetchedProps = await getProps()
+               setProps(fetchedProps)
             }
          } catch (error) {
             console.error('Error fetching data:', error);
@@ -64,7 +54,7 @@ const Catalog = ({ user, search }) => {
                            </h5>
                            <div className="section-filter__body">
                               <div className="section-filter__style style-filter" >
-                                 {categories.map((item) => (
+                                 {props?.categories.map((item) => (
                                     <label className="style-filter__item _icon-ch-right" key={item._id}>
                                        <input
                                           type="checkbox"
@@ -104,7 +94,7 @@ const Catalog = ({ user, search }) => {
                            </h5>
                            <div className="section-filter__body">
                               <div className="section-filter__colors colors-filter" >
-                                 {colors.map((item) => (
+                                 {props?.colors.map((item) => (
                                     <label style={{ '--color': item.name }} className="colors-filter__item" key={item._id}>
                                        <input
                                           type="checkbox"
@@ -136,7 +126,7 @@ const Catalog = ({ user, search }) => {
                            </h5>
                            <div className="section-filter__body">
                               <div className="section-filter__size size-filter">
-                                 {sizes.map((item) => (
+                                 {props?.sizes.map((item) => (
                                     <label className="size-filter__item" key={item._id}>
                                        <input
                                           type="checkbox"
@@ -168,7 +158,7 @@ const Catalog = ({ user, search }) => {
                            </h5>
                            <div className="section-filter__body">
                               <div className="section-filter__style style-filter">
-                                 {brands.map((item) => (
+                                 {props?.brands.map((item) => (
                                     <label className="style-filter__item _icon-ch-right" key={item._id}>
                                        <input
                                           type="checkbox"
@@ -224,8 +214,8 @@ const Catalog = ({ user, search }) => {
                            </div>
                         </div>
                      }
-                     {user?.role === userType.ADMIN &&
-                        <Link to="/addProduct" className="catalog__add-button button">Add procuct</Link>
+                     {user?.role === USER_TYPE.ADMIN &&
+                        <Link to={ROUTES.ADD_PRODUCT} className="catalog__add-button button">Add procuct</Link>
                      }
                      <div className="catalog__header">
                         <h1 className="catalog__title">{search === 'Men' ? 'Men' : search === 'Women' ? 'Women' : 'Catalog'}</h1>
@@ -242,7 +232,7 @@ const Catalog = ({ user, search }) => {
                         {products?.length === 0 && !loading && (<h2>NO MATCHES FOUND</h2>)}
                         {products.map((item) => (
                            < article className="item-product" key={item._id}>
-                              <Link to={`/productCard/${item._id}`} className="item-product__picture-link">
+                              <Link to={ROUTES.PRODUCT_CARD(item._id)} className="item-product__picture-link">
                                  <img src={item.image} className="item-product__image" alt={item.name} />
                               </Link>
                               <div className="item-product__body">

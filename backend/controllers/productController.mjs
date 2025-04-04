@@ -29,14 +29,13 @@ class ProductController {
       })
       return res.status(400).json(errorMessages)
     }
-
-    const productData = req.body
+    const productData = JSON.parse(req.body.product)
     if (req.files.length > 0) {
       productData.image = req.files.map(file => "data:image/jpeg;base64," + file.buffer.toString('base64'))
     }
     try {
       if (req.params.id) {
-        await ProductService.updateCar(req.params.id, carData)
+        await ProductService.updateCar(req.params.id, productData)
       } else {
         await ProductService.addNewProduct(productData)
       }

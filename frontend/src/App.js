@@ -4,6 +4,7 @@ import Header from './components/Header'
 import AppRoutes from './router/Routes'
 import Footer from './components/Footer'
 import apiServer from './api/indexApi'
+import { SERVER_ROUTES } from './constants/serverRoutes.mjs'
 import ScrollToTop from './components/ScrollToTop'
 import MyToaster from './components/Toaster'
 import { slideToggle } from './utils/spollers/slideToggle.mjs'
@@ -22,9 +23,10 @@ const App = () => {
     if (user) {
       const fetchData = async () => {
         try {
-          const response = await apiServer.get('/cart', {
+          const response = await apiServer.get(SERVER_ROUTES.CART, {
             params: { userId: user.id }
           })
+          console.log(response.data)
           setProductList(response.data.productList)
         } catch (error) {
           console.error('Error fetching data:', error)

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import apiServer from '../../api/indexApi'
+import { SERVER_ROUTES, UPDATE, DELETE } from '../../constants/serverRoutes.mjs'
 import Loading from '../../components/Loading'
 import EmptyCart from '../../components/EmptyCart'
 
@@ -11,7 +12,7 @@ const Cart = ({ productList, setCartIsChanged, user }) => {
    const updateProductAmount = async (productId, amount) => {
       try {
          setLoading(true)
-         await apiServer.post(`/cart/update`, {
+         await apiServer.post(SERVER_ROUTES.CART + UPDATE, {
             params: { productId, amount, userId: user.id }
          })
          setLoading(false)
@@ -23,7 +24,7 @@ const Cart = ({ productList, setCartIsChanged, user }) => {
 
    const deleteItem = async (productId) => {
       try {
-         const response = await apiServer.post(`/cart/delete`, {
+         const response = await apiServer.post(SERVER_ROUTES + DELETE, {
             params: { productId, userId: user.id }
          })
          if (response.status === 200) {

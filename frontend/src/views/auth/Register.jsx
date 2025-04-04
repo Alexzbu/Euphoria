@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import apiServer from '../../api/indexApi'
+import { SERVER_ROUTES } from '../../constants/serverRoutes.mjs';
 
 const Register = () => {
    const [username, setUsername] = useState('')
@@ -35,7 +36,7 @@ const Register = () => {
          return
       }
       try {
-         const response = await apiServer.post('/auth/signup', {
+         const response = await apiServer.post(SERVER_ROUTES.REGISTER, {
             username, password
          })
          if (response.status === 200) {
@@ -106,41 +107,7 @@ const Register = () => {
             </div>
          </div>
       </section>
-      // <div classNameName="container">
-      //    <h1 classNameName="title">Registration</h1>
-      //    <div classNameName="form">
-      //       <label classNameName="form__label" htmlFor="username">Email:</label>
-      //       <input
-      //          classNameName="form__input"
-      //          type="text" name="username"
-      //          value={username}
-      //          onChange={(e) => setUsername(e.target.value)}
-      //       />
-      //       {errors.username && <span classNameName="error">{errors.username}</span>}
-
-      //       <label classNameName="form__label" htmlFor="password" >Password:</label>
-      //       <input
-      //          classNameName="form__input"
-      //          type="password" name="password"
-      //          value={password}
-      //          onChange={(e) => setPassword(e.target.value)}
-      //       />
-      //       {errors.password && <span classNameName="error">{errors.password}</span>}
-
-      //       <label classNameName="form__label" htmlFor="password" >Confirm password:</label>
-      //       <input
-      //          classNameName="form__input"
-      //          type="password"
-      //          name="passwordConfirm"
-      //          value={passwordConfirm}
-      //          onChange={(e) => setPasswordConfirm(e.target.value)}
-      //       />
-      //       {errors.passwordConfirm && <span classNameName="error">{errors.passwordConfirm}</span>}
-
-      //       <button classNameName="form__button" onClick={sendForm}>Sign up</button>
-      //    </div>
-      // </div>
-   );
-};
+   )
+}
 
 export default Register

@@ -1,9 +1,10 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { ROUTES } from '../constants/routes.mjs';
 import MainPage from '../views/MainPage'
 import Catalog from '../views/Catalog';
 import ProductCard from '../views/products/ProductCard';
-import AddProductForm from '../views/products/AddProductForm';
+import ProductForm from '../views/products/ProductForm';
 import Cart from '../views/products/Cart';
 import Props from '../views/props/Props';
 import AddPropsForm from '../views/props/AddPropsForm';
@@ -12,15 +13,15 @@ import Register from '../views/auth/Register'
 
 
 const ProtectedRoute = ({ children, isAuthenticated }) => {
-   return isAuthenticated ? children : <Navigate to="/login" />
+   return isAuthenticated ? children : <Navigate to={ROUTES.LOGIN} />
 }
 
 const AppRoutes = ({ user, setUser, search, productList, setProductList, setCartIsChanged }) => {
    return (
       <Routes>
          <Route path="/" element={<MainPage />} />
-         <Route path="/catalog" element={<Catalog user={user} search={search} />} />
-         <Route path="/cart"
+         <Route path={ROUTES.CATALOG} element={<Catalog user={user} search={search} />} />
+         <Route path={ROUTES.CART}
             element={
                <Cart
                   user={user}
@@ -29,11 +30,11 @@ const AppRoutes = ({ user, setUser, search, productList, setProductList, setCart
                   setCartIsChanged={setCartIsChanged}
                />}
          />
-         <Route path="/productCard/:id" element={<ProductCard user={user} setCartIsChanged={setCartIsChanged} />} />
-         <Route path="/addProduct/:id?"
+         <Route path={ROUTES.PRODUCT_CARD()} element={<ProductCard user={user} setCartIsChanged={setCartIsChanged} />} />
+         <Route path={ROUTES.ADD_PRODUCT}
             element={
                // <ProtectedRoute isAuthenticated={isAuthenticated}>
-               <AddProductForm />
+               <ProductForm />
                // </ProtectedRoute>
             } />
          <Route path="/props" element={<Props user={user} />} />
@@ -43,8 +44,8 @@ const AppRoutes = ({ user, setUser, search, productList, setProductList, setCart
                <AddPropsForm />
                // </ProtectedRoute>
             } />
-         <Route path="/login" element={<Login setUser={setUser} />} />
-         <Route path="/register" element={<Register />} />
+         <Route path={ROUTES.LOGIN} element={<Login setUser={setUser} />} />
+         <Route path={ROUTES.REGISTER} element={<Register />} />
       </Routes>
    );
 };

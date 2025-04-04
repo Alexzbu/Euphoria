@@ -45,13 +45,6 @@ class ProductService {
             as: 'sex',
           }
         },
-        // {
-        //   $unwind: '$category',
-        //   $unwind: '$color',
-        //   $unwind: '$size',
-        //   $unwind: '$brand',
-        //   $unwind: '$sex',
-        // },
         {
           $match: {
             price: {

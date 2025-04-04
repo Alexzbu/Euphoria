@@ -1,5 +1,5 @@
 import UserService from '../services/userService.mjs'
-import { prepareToken } from '../utils/jwtHelpers.mjs'
+import { prepareToken, parseBearer } from '../utils/jwtHelpers.mjs'
 
 class AuthController {
 
@@ -44,14 +44,9 @@ class AuthController {
       const token = prepareToken(
         { id: user._id, username: user.username, role: user.type.title },
         req.headers
-      );
+      )
 
-      res.cookie('jwt_token', token, {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'None',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      });
+      setCookies(req, res, token)
 
       res.status(200).json({ message: 'Login successful' });
     } catch (err) {
@@ -59,7 +54,40 @@ class AuthController {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   }
+
+  static async googleLogin(req, res) {
+    if (!req.user) {
+      return res.status(401).json({ message: 'Authentication failed' })
+    }
+
+    setCookies(req, res)
+
+    res.redirect((process.env.BASE_FRONT_URL ?? 'http://localhost:3000') + '/login?successful=true')
+  }
+
+  static async checkLogin(req, res) {
+    const token = req.cookies.jwt_token
+    if (!token) {
+      return res.status(401).json({ message: 'Not authenticated' })
+    }
+    try {
+      const user = parseBearer(token, req.headers)
+      res.json({ user })
+    } catch (error) {
+      res.status(401).json({ message: 'Invalid token' })
+    }
+  }
 }
 
-export default AuthController;
+function setCookies(req, res, token) {
+  res.cookie('jwt_token', token || req?.user?.token, {
+    domain: req.hostname,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'Lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  })
+}
+
+export default AuthController
 

@@ -4,8 +4,8 @@ import Loading from '../../components/Loading'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 const Props = () => {
-   const [searchParams] = useSearchParams();
-   const title = searchParams.get('title');
+   const [searchParams] = useSearchParams()
+   const title = searchParams.get('title')
    const [data, setData] = useState([])
    const [loading, setLoading] = useState(true)
    const navigate = useNavigate()

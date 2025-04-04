@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import apiServer from '../../api/indexApi'
+import { SERVER_ROUTES } from '../../constants/serverRoutes.mjs'
+import { ROUTES } from '../../constants/routes.mjs'
 import { Link } from 'react-router-dom'
 import { toast } from "react-hot-toast"
+import { getUser } from '../../utils/getUser.mjs'
 
 const Login = ({ setUser }) => {
    const [searchParams] = useSearchParams();
@@ -16,14 +19,9 @@ const Login = ({ setUser }) => {
       const checkAuth = async () => {
          if (successful === 'true') {
             try {
-               const response = await apiServer.get('/auth/me')
-               setUser(response.data.user)
-               localStorage.setItem('user', JSON.stringify({
-                  id: response.data.user.id,
-                  name: response.data.user.username,
-                  role: response.data.user.role
-               }))
-               navigate('/catalog')
+               const user = getUser()
+               setUser(user)
+               navigate(ROUTES.CATALOG)
             } catch (error) {
                console.error('Error fetching data:', error)
             }
@@ -55,17 +53,12 @@ const Login = ({ setUser }) => {
       }
 
       try {
-         await apiServer.post('/auth/login', {
+         await apiServer.post(SERVER_ROUTES.LOGIN, {
             username, password
          })
-         const response = await apiServer.get('/auth/me')
-         setUser(response.data.user)
-         localStorage.setItem('user', JSON.stringify({
-            id: response.data.user.id,
-            name: response.data.user.username,
-            role: response.data.user.role
-         }))
-         navigate('/catalog')
+         const user = getUser()
+         setUser(user)
+         navigate(ROUTES.CATALOG)
       } catch (error) {
          toast.error(error.response.data.message)
          console.error('Error fetching data:', error)
@@ -77,9 +70,7 @@ const Login = ({ setUser }) => {
          <div className="sign-in__container">
             <div className="sign-in__body">
                <h1 className="sign-in__title title">Sign In</h1>
-               <Link to={process.env.NODE_ENV === "development"
-                  ? process.env.REACT_APP_DEV_API_URL + 'auth/google'
-                  : process.env.REACT_APP_PROD_API_URL + 'auth/google'}
+               <Link to={`${SERVER_ROUTES.BASE}${SERVER_ROUTES.GOOGLE}`}
                   className="sign-in__button button button--border sign-in__button--google"
                ><span>Continue With Google</span>
                </Link>
@@ -124,7 +115,7 @@ const Login = ({ setUser }) => {
                      Sign In
                   </button>
                   <p className="form__to-sign-up to-sign-up">Don’t have an account?
-                     <Link to="/register" className="to-sign-up__link" >Sign up</Link>
+                     <Link to={ROUTES.REGISTER} className="to-sign-up__link" >Sign up</Link>
                   </p>
                </div>
             </div>
