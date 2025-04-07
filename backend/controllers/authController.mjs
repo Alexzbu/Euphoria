@@ -1,11 +1,13 @@
 import UserService from '../services/userService.mjs'
 import { prepareToken, parseBearer } from '../utils/jwtHelpers.mjs'
 
+const MAX_FAILED_ATTEMPTS = 5
+const LOCK_TIME = 60 * 60 * 1000
+const COOKIE_MAX_AGE = 7 * 24 * 60 * 60 * 1000
+
 class AuthController {
 
   static async login(req, res) {
-    const MAX_FAILED_ATTEMPTS = 5;
-    const LOCK_TIME = 60 * 60 * 1000;
 
     if (!req.body.username) {
       return res.status(400).json({ message: 'Email is required' });
@@ -84,8 +86,8 @@ function setCookies(req, res, token) {
     domain: req.hostname,
     httpOnly: true,
     secure: true,
-    sameSite: 'Lax',
-    maxAge: 7 * 24 * 60 * 60 * 1000,
+    sameSite: 'None',
+    maxAge: COOKIE_MAX_AGE,
   })
 }
 

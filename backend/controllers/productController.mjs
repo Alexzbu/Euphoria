@@ -45,12 +45,10 @@ class ProductController {
     }
   }
 
-  static async procuctDetail(req, res) {
+  static async productDetails(req, res) {
     try {
-      const { id } = req.params
-      const { name, color } = req.query
-
-      const product = await ProductService.getprocuctDetails(id, name, color)
+      const { id = '', name = '', color = '' } = req.query
+      const product = await ProductService.getProductDetails(id, name, color)
       res.status(200).json({ product })
     } catch (err) {
       res.status(500).json({ error: err.message })

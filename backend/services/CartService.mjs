@@ -1,41 +1,57 @@
 import Cart from "../models/Cart.mjs"
 
+const POPULATE = {
+  path: 'productList.product',
+  populate: [
+    { path: 'color' },
+    { path: 'size' }
+  ]
+}
+
 class CartService {
   static async getCart(userId) {
     try {
       return await Cart.findOne({ customer: userId })
-        .populate({
-          path: 'productList.product',
-          populate: [
-            { path: 'color' },
-            { path: 'size' }
-          ]
-        })
+        .populate(POPULATE)
 
     } catch (error) {
       throw new Error('Cart not found')
     }
   }
 
-  static async addProduct(userId, productId) {
-
+  static async addProduct({ product, userId }) {
     try {
       let cart = await Cart.findOne({ customer: userId })
-      if (cart) {
-        const productIndex = cart.productList.findIndex(
-          (item) => item.product.toString() === productId
-        )
-        if (productIndex >= 0) {
-          cart.productList[productIndex].amount += 1
-        } else {
-          cart.productList.push({ product: productId, amount: 1 })
+      if (!Array.isArray(product)) {
+        if (cart) {
+          const productIndex = cart.productList.findIndex(
+            (item) => item.product.toString() === product.id
+          )
+          if (productIndex >= 0) {
+            cart.productList[productIndex].amount += 1
+          } else {
+            cart.productList.push({ product: product.id, size: product.size, amount: 1 })
+          }
+          await cart.save()
+          return await cart.populate(POPULATE)
         }
-        return await cart.save()
-      } else {
         return await Cart.create({
           customer: userId,
-          productList: [{ product: productId, amount: 1 }]
+          productList: [{ product: product.id, size: product.size, amount: 1 }]
         })
+          .populate(POPULATE)
+      } else {
+        if (!cart) {
+          const newCart = await Cart.create({
+            customer: userId,
+            productList: product
+          })
+          return await newCart.populate(POPULATE)
+        } else {
+          cart.productList.push(...product)
+          await cart.save()
+          return await cart.populate(POPULATE)
+        }
       }
     } catch (error) {
       console.log(error)
@@ -43,7 +59,7 @@ class CartService {
     }
   }
 
-  static async updateProductAmount(userId, productId, amount) {
+  static async updateProductAmount({ userId, productId, amount }) {
 
     try {
       let cart = await Cart.findOne({ customer: userId })
@@ -52,8 +68,8 @@ class CartService {
           (item) => item.product.toString() === productId
         )
         cart.productList[productIndex].amount = amount
-
-        return await cart.save()
+        await cart.save()
+        return await cart.populate(POPULATE)
       }
     } catch (error) {
       console.log(error)
@@ -61,32 +77,21 @@ class CartService {
     }
   }
 
-  static async deleteProduct(userId, productId) {
+  static async deleteProduct({ userId, productId }) {
     try {
-      // Find the cart
-      console.log(userId)
-
-      let cart = await Cart.findOne({ customer: userId });
-
+      let cart = await Cart.findOne({ customer: userId })
       if (!cart) {
         throw new Error("Cart not found");
       }
-
-      // Filter out the product from productsList
       const updatedProductsList = cart.productList.filter(
         (item) => item.product.toString() !== productId
-      );
-
-      // Check if the product was actually removed
+      )
       if (updatedProductsList.length === cart.productList.length) {
         throw new Error("Product not found in cart");
       }
-
-      // Update the cart and save
-      cart.productList = updatedProductsList;
-      await cart.save();
-
-      return cart;
+      cart.productList = updatedProductsList
+      await cart.save()
+      return await cart.populate(POPULATE)
     } catch (error) {
       console.error("Error deleting product:", error.message);
       throw new Error("Failed to delete product");

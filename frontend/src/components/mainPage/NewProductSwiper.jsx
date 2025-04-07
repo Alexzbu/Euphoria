@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 
 const NewProductSwiper = () => {
 
-   const slideCount = 4
+   const slideCount = 6
    const slides = Array.from({ length: slideCount })
 
    return (
@@ -20,7 +20,7 @@ const NewProductSwiper = () => {
                   <Swiper
                      modules={[Navigation, Autoplay]}
                      spaceBetween={38}
-                     slidesPerView={3}
+                     slidesPerView={4}
                      loop={true}
                      speed={800}
                      autoplay={{

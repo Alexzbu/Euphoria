@@ -8,8 +8,10 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import apiServer from '../../api/indexApi'
 import { toast } from "react-hot-toast"
+import { ADD, DETAILS, PROPS, SERVER_ROUTES } from '../../constants/serverRoutes.mjs'
+import { LOCAL_STORAGE } from '../../constants/localStorage.mjs'
 
-const ProductCard = ({ user, setCartIsChanged }) => {
+const ProductCard = ({ user, setProductList }) => {
    const { id = '' } = useParams()
    const [loading, setLoading] = useState(false)
    const [product, setProduct] = useState({})
@@ -21,14 +23,16 @@ const ProductCard = ({ user, setCartIsChanged }) => {
       const fetchProduct = async () => {
          if (id) {
             try {
-               const response = await apiServer.get(`/products/details/${id}`)
+               const response = await apiServer.get(`${SERVER_ROUTES.PRODUCTS}${DETAILS}`, {
+                  params: { id }
+               })
                setProduct(response.data.product)
-               const propsResponse = await apiServer.get(`/products/props`, {
+               const propsResponse = await apiServer.get(`${SERVER_ROUTES.PRODUCTS}${PROPS}`, {
                   params: { name: response.data.product.name },
                })
                setProps(propsResponse.data[0])
             } catch (error) {
-               console.error('Error fetching product data:', error);
+               console.error('Error fetching product data:', error)
             }
          }
       };
@@ -40,7 +44,7 @@ const ProductCard = ({ user, setCartIsChanged }) => {
       const fetchProductByColor = async () => {
          if (colorToSearch) {
             try {
-               const response = await apiServer.get(`/products/details`, {
+               const response = await apiServer.get(`${SERVER_ROUTES.PRODUCTS}${DETAILS}`, {
                   params: { name: product?.name, color: colorToSearch }
                });
                setProduct(response.data.product)
@@ -54,21 +58,34 @@ const ProductCard = ({ user, setCartIsChanged }) => {
    }, [colorToSearch])
 
    const addProductToCart = async () => {
-
-      if (!user) {
-         toast('Please sign in to add this product to your cart')
-         return
-      }
-      try {
-         setLoading(true)
-         const response = await apiServer.post(`/cart/add`, {
-            params: { productId: product._id, userId: user.id }
-         })
+      if (user) {
+         try {
+            setLoading(true)
+            const response = await apiServer.post(`${SERVER_ROUTES.CART}${ADD}`, {
+               product: { id: product._id, size: product.size.name }, userId: user.id
+            })
+            response.data && setProductList(response.data.productList)
+            toast.success('This product was added to your cart')
+         } catch (error) {
+            console.error('Error sending data:', error);
+         } finally {
+            setLoading(false);
+         }
+      } else {
          toast.success('This product was added to your cart')
-         setLoading(false)
-         setCartIsChanged((prev) => !prev)
-      } catch (error) {
-         console.error('Error sending data:', error);
+         let storedProducts = JSON.parse(localStorage.getItem(LOCAL_STORAGE.PRODUCTS)) || []
+         let productIndex = storedProducts.findIndex(item => item.product._id === product._id)
+
+         if (productIndex !== -1 && product.size.name === storedProducts[productIndex].product.size.name) {
+            storedProducts[productIndex].amount++
+         } else {
+            storedProducts.push({
+               product,
+               amount: 1
+            })
+         }
+         localStorage.setItem(LOCAL_STORAGE.PRODUCTS, JSON.stringify(storedProducts))
+         setProductList(storedProducts)
       }
    }
 
@@ -123,7 +140,19 @@ const ProductCard = ({ user, setCartIsChanged }) => {
                            {props?.sizes?.map((item, index) => (
                               <label className="sizes-product__item" key={index}>
                                  {item}
-                                 <input type="radio" value={item} className="sizes-product__input" name="product-size" />
+                                 <input
+                                    checked={item === product?.size?.name}
+                                    type="radio"
+                                    value={item}
+                                    className="sizes-product__input"
+                                    name="product-size"
+                                    onChange={(e) =>
+                                       setProduct({
+                                          ...product,
+                                          size: { ...(product.size || {}), name: e.target.value }
+                                       })
+                                    }
+                                 />
                               </label>
                            ))}
                         </div>

@@ -8,6 +8,9 @@ const cartProductSchema = new Schema({
     ref: 'Product',
     required: true
   },
+  size: {
+    type: String
+  },
   amount: {
     type: Number,
     required: [true],

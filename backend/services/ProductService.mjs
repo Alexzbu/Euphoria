@@ -1,8 +1,9 @@
 import Product from '../models/Product.mjs'
+import { Types } from 'mongoose'
 
 class ProductService {
   static async getProductsList(reqQuery) {
-    const { name = '', color = '', sort = '_id', filter = {}, search = '', page = 0, limit = 20 } = reqQuery;
+    const { id = [], name = '', color = '', sort = '_id', filter = {}, search = '', page = 0, limit = 20 } = reqQuery;
     try {
       const pipeline = [
         {
@@ -46,6 +47,12 @@ class ProductService {
           }
         },
         {
+          $unwind: '$color'
+        },
+        {
+          $unwind: '$size'
+        },
+        {
           $match: {
             price: {
               $gte: Number(filter.priceFrom || 0),
@@ -70,14 +77,18 @@ class ProductService {
               { 'sex.name': search }
             ]
           }
-        });
+        })
+      }
+      if (Array.isArray(id) && id.length > 0) {
+        const objectIds = id.map(i => new Types.ObjectId(i))
+        pipeline.push({ $match: { '_id': { $in: objectIds } } })
       }
       if (filter.category) { pipeline.push({ $match: { 'category.name': { $in: filter.category } } }) }
       if (filter.color) { pipeline.push({ $match: { 'color.name': { $in: filter.color } } }) }
       if (filter.size) { pipeline.push({ $match: { 'size.name': { $in: filter.size } } }) }
       if (filter.brand) { pipeline.push({ $match: { 'brand.name': { $in: filter.brand } } }) }
 
-      pipeline.push({ $project: { name: 1, price: 1, image: { $arrayElemAt: ["$image", 0] } } });
+      pipeline.push({ $project: { name: 1, price: 1, color: 1, size: 1, image: { $arrayElemAt: ["$image", 0] } } });
       pipeline.push({ $sort: { [sort]: 1 } });
       pipeline.push({ $skip: page * limit }, { $limit: limit });
 
@@ -138,10 +149,12 @@ class ProductService {
     return await product.save()
   }
 
-  static async getprocuctDetails(id, name, color) {
+  static async getProductDetails(id, name, color) {
     try {
       if (id) {
-        return await Product.findById(id).populate('color')
+        return await Product.findById(id)
+          .populate('color')
+          .populate('size')
       } else {
         const product = await Product.aggregate(
           [{
@@ -170,6 +183,7 @@ class ProductService {
       throw new Error('Unable to fetch product details.');
     }
   }
+
 
   static async updateProduct(id, data) {
     return await Product.findByIdAndUpdate(id, data, {

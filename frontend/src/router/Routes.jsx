@@ -12,11 +12,11 @@ import Login from '../views/auth/Login'
 import Register from '../views/auth/Register'
 
 
-const ProtectedRoute = ({ children, isAuthenticated }) => {
-   return isAuthenticated ? children : <Navigate to={ROUTES.LOGIN} />
+const ProtectedRoute = ({ children, user }) => {
+   return user ? children : <Navigate to={ROUTES.LOGIN} />
 }
 
-const AppRoutes = ({ user, setUser, search, productList, setProductList, setCartIsChanged }) => {
+const AppRoutes = ({ user, setUser, search, productList, setProductList }) => {
    return (
       <Routes>
          <Route path="/" element={<MainPage />} />
@@ -27,10 +27,9 @@ const AppRoutes = ({ user, setUser, search, productList, setProductList, setCart
                   user={user}
                   productList={productList}
                   setProductList={setProductList}
-                  setCartIsChanged={setCartIsChanged}
                />}
          />
-         <Route path={ROUTES.PRODUCT_CARD()} element={<ProductCard user={user} setCartIsChanged={setCartIsChanged} />} />
+         <Route path={ROUTES.PRODUCT_CARD()} element={<ProductCard user={user} setProductList={setProductList} />} />
          <Route path={ROUTES.ADD_PRODUCT}
             element={
                // <ProtectedRoute isAuthenticated={isAuthenticated}>

@@ -21,8 +21,8 @@ export default async function () {
 
          const typeId = await typeAdmin.save()
          const admin = new User({
-            username: 'admin@admin.com',
-            password: 'Admin123$',
+            username: process.env.DEFAULT_USER_NAME,
+            password: process.env.DEFAULT_PASSWORD,
             type: typeId._id
          })
          await admin.save()

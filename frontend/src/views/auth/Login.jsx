@@ -19,7 +19,7 @@ const Login = ({ setUser }) => {
       const checkAuth = async () => {
          if (successful === 'true') {
             try {
-               const user = getUser()
+               const user = await getUser()
                setUser(user)
                navigate(ROUTES.CATALOG)
             } catch (error) {
@@ -56,7 +56,7 @@ const Login = ({ setUser }) => {
          await apiServer.post(SERVER_ROUTES.LOGIN, {
             username, password
          })
-         const user = getUser()
+         const user = await getUser()
          setUser(user)
          navigate(ROUTES.CATALOG)
       } catch (error) {

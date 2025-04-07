@@ -18,7 +18,7 @@ router.post('/add/:id?',
 
 // router.delete('/:id', CarsController.deleteCar)
 
-router.get('/details/:id?', ProductController.procuctDetail)
+router.get('/details', ProductController.productDetails)
 router.get('/props', ProductController.getProductProps)
 
 
