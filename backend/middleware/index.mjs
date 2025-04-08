@@ -7,8 +7,6 @@ import cors from 'cors'
 import auth from './auth.mjs'
 import { limiter } from './limiter.mjs'
 import passport from '../config/passport.mjs'
-// import sessionConfig from '../config/session.mjs'
-// import flash from 'connect-flash'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -16,7 +14,7 @@ const __dirname = path.dirname(__filename)
 const middleware = (app) => {
 
   app.use(cors({
-    origin: process.env.BASE_FRONT_URL || 'http://localhost:3000',
+    origin: process.env.BASE_FRONT_URL,
     credentials: true,
     methods: 'GET, POST, OPTIONS, PUT, PATCH, DELETE',
     allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
@@ -33,10 +31,7 @@ const middleware = (app) => {
 
   app.use(express.static(path.join(__dirname, '../public')))
 
-  // app.use(sessionConfig)
   app.use(passport.initialize())
-  // app.use(passport.session())
-  // app.use(flash())
 }
 
 export default middleware

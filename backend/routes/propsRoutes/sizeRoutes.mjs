@@ -1,21 +1,15 @@
 import SizeController from '../../controllers/propsControllers/sizeContriller.mjs'
-// import LocationValidator from '../validators/LocationValidator.mjs'
-import { checkSchema } from 'express-validator'
 import { ensureAdmin } from '../../middleware/ensureAdmin.mjs'
 import { Router } from 'express'
+import { BASE, ADD } from '../../constants/routes.mjs'
+
 const router = Router()
 
-router.get('/', SizeController.getSizes)
+router.get(BASE, SizeController.getSizes)
 
-// router.get('/:id', LocationController.getLocationById)
-
-router.post('/add/:id?/',
+router.post(ADD,
     ensureAdmin,
-    // checkSchema(LocationValidator.locationSchema),
     SizeController.createSize
 )
-
-// router.delete('/:id', LocationController.deleteLocation)
-
 
 export default router

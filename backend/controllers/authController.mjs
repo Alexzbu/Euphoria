@@ -1,6 +1,7 @@
 import UserService from '../services/userService.mjs'
 import { prepareToken, parseBearer } from '../utils/jwtHelpers.mjs'
 
+const SUCCESSFUL_LOGIN = '/login?successful=true'
 const MAX_FAILED_ATTEMPTS = 5
 const LOCK_TIME = 60 * 60 * 1000
 const COOKIE_MAX_AGE = 7 * 24 * 60 * 60 * 1000
@@ -32,7 +33,6 @@ class AuthController {
 
         if (user.failedAttempts >= MAX_FAILED_ATTEMPTS) {
           user.lockUntil = Date.now() + LOCK_TIME;
-          user.failedAttempts = 0
         }
 
         await user.save();
@@ -64,7 +64,7 @@ class AuthController {
 
     setCookies(req, res)
 
-    res.redirect((process.env.BASE_FRONT_URL ?? 'http://localhost:3000') + '/login?successful=true')
+    res.redirect(`${process.env.BASE_FRONT_URL}${SUCCESSFUL_LOGIN}`)
   }
 
   static async checkLogin(req, res) {
@@ -83,10 +83,10 @@ class AuthController {
 
 function setCookies(req, res, token) {
   res.cookie('jwt_token', token || req?.user?.token, {
-    domain: req.hostname,
+    domain: process.env.DOMAIN ?? req.hostname,
     httpOnly: true,
     secure: true,
-    sameSite: 'None',
+    sameSite: process.env.SAME_SITE,
     maxAge: COOKIE_MAX_AGE,
   })
 }

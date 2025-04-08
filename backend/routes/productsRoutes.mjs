@@ -4,12 +4,14 @@ import upload from '../middleware/UploadManager.mjs'
 import { checkSchema } from 'express-validator'
 import { Router } from 'express'
 import { ensureAdmin } from '../middleware/ensureAdmin.mjs'
+import { BASE, ADD, DETAILS, PROPS } from '../constants/routes.mjs'
+
 const router = Router()
 
-router.get('/', ProductController.getProducts)
+router.get(BASE, ProductController.getProducts)
 
 
-router.post('/add/:id?',
+router.post(ADD,
     ensureAdmin,
     upload.array('productImage', 5),
     // checkSchema(CarValidator.carSchema),
@@ -18,8 +20,8 @@ router.post('/add/:id?',
 
 // router.delete('/:id', CarsController.deleteCar)
 
-router.get('/details', ProductController.productDetails)
-router.get('/props', ProductController.getProductProps)
+router.get(DETAILS, ProductController.productDetails)
+router.get(PROPS, ProductController.getProductProps)
 
 
 export default router
