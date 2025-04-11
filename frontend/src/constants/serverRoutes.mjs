@@ -1,7 +1,3 @@
-const BASE = process.env.NODE_ENV === "development"
-   ? process.env.REACT_APP_DEV_API_URL
-   : process.env.REACT_APP_PROD_API_URL
-
 const AUTH = "/auth"
 export const ADD = "/add"
 export const UPDATE = "/update"
@@ -11,7 +7,7 @@ export const PROPS = "/props"
 
 
 export const SERVER_ROUTES = {
-   BASE,
+   BASE: process.env.REACT_APP_API_URL,
    LOGIN: `${AUTH}/login`,
    LOGOUT: `${AUTH}/logout`,
    REGISTER: `${AUTH}/signup`,

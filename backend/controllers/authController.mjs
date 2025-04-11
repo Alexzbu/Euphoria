@@ -83,9 +83,8 @@ class AuthController {
 
 function setCookies(req, res, token) {
   res.cookie('jwt_token', token || req?.user?.token, {
-    domain: process.env.DOMAIN ?? req.hostname,
     httpOnly: true,
-    secure: true,
+    secure: process.env.SECURE,
     sameSite: process.env.SAME_SITE,
     maxAge: COOKIE_MAX_AGE,
   })

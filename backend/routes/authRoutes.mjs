@@ -32,9 +32,8 @@ router.get(GET_USER,
 
 router.get(LOGOUT, (req, res) => {
   res.clearCookie('jwt_token', {
-    domain: process.env.DOMAIN ?? req.hostname,
     httpOnly: true,
-    secure: true,
+    secure: process.env.SECURE,
     sameSite: process.env.SAME_SITE,
   })
   res.status(200).json({ message: 'Logout successful' });

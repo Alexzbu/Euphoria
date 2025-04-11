@@ -70,10 +70,12 @@ const Login = ({ setUser }) => {
          <div className="sign-in__container">
             <div className="sign-in__body">
                <h1 className="sign-in__title title">Sign In</h1>
-               <Link to={`${SERVER_ROUTES.BASE}${SERVER_ROUTES.GOOGLE}`}
+               <a
+                  href={`${SERVER_ROUTES.BASE}${SERVER_ROUTES.GOOGLE}`}
                   className="sign-in__button button button--border sign-in__button--google"
-               ><span>Continue With Google</span>
-               </Link>
+               >
+                  <span>Continue With Google</span>
+               </a>
                <Link href="#"
                   className="sign-in__button button button--border sign-in__button--apple"
                ><span>Continue With Apple</span>

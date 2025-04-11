@@ -1,0 +1,40 @@
+{
+  "files": {
+    "main.css": "/static/css/main.336acd49.css",
+    "main.js": "/static/js/main.748cce2f.js",
+    "static/media/bg.jpg": "/static/media/bg.886cc2781786dcb9fc0e.jpg",
+    "static/media/Causten-Medium.woff": "/static/media/Causten-Medium.d67df83cfdc427938830.woff",
+    "static/media/Causten-Bold.woff": "/static/media/Causten-Bold.22fe6f530f27739c68e6.woff",
+    "static/media/Causten-SemiBold.woff": "/static/media/Causten-SemiBold.fe97546a4383132a7e9d.woff",
+    "static/media/Causten-Light.woff": "/static/media/Causten-Light.5b8c01c331cf447fc904.woff",
+    "static/media/Causten-Regular.woff": "/static/media/Causten-Regular.1f460c916cabbb130f02.woff",
+    "static/media/CoreSansC-65Bold.woff": "/static/media/CoreSansC-65Bold.38cfe81771b468c1a6c1.woff",
+    "static/media/CoreSansC-45Regular.woff": "/static/media/CoreSansC-45Regular.787c3a009f8b7b8acd21.woff",
+    "static/media/CoreSansC-75ExtraBold.woff": "/static/media/CoreSansC-75ExtraBold.9c0fdafd8a902a7299b3.woff",
+    "static/media/CoreSansC-85Heavy.woff": "/static/media/CoreSansC-85Heavy.5f90687ad2516bcc3afa.woff",
+    "static/media/CoreSansC-55Medium.woff": "/static/media/CoreSansC-55Medium.6c434d2e8345090382d9.woff",
+    "static/media/Causten-Bold.woff2": "/static/media/Causten-Bold.0a7dddabc63cd4635ebf.woff2",
+    "static/media/Causten-Medium.woff2": "/static/media/Causten-Medium.1ac1f736c92c62b29919.woff2",
+    "static/media/Causten-SemiBold.woff2": "/static/media/Causten-SemiBold.fe56dd0146697bb74861.woff2",
+    "static/media/Causten-Regular.woff2": "/static/media/Causten-Regular.2cab7475559e9b09a071.woff2",
+    "static/media/Causten-Light.woff2": "/static/media/Causten-Light.9d6c1f8a849a0607036a.woff2",
+    "static/media/CoreSansC-65Bold.woff2": "/static/media/CoreSansC-65Bold.2ee1cf521b838e6fa973.woff2",
+    "static/media/CoreSansC-45Regular.woff2": "/static/media/CoreSansC-45Regular.ded1f20adc1f9c82931e.woff2",
+    "static/media/CoreSansC-75ExtraBold.woff2": "/static/media/CoreSansC-75ExtraBold.91987e1165cb32afe1b3.woff2",
+    "static/media/CoreSansC-85Heavy.woff2": "/static/media/CoreSansC-85Heavy.699a44c818c0286d42f7.woff2",
+    "static/media/CoreSansC-55Medium.woff2": "/static/media/CoreSansC-55Medium.bfb534fcf191425186ef.woff2",
+    "static/media/icons.woff": "/static/media/icons.1eb1187afc9b065ed349.woff",
+    "static/media/icons.woff2": "/static/media/icons.524a4021b459b1ddc02b.woff2",
+    "static/media/Google.svg": "/static/media/Google.1dcd88de9de47e81c331.svg",
+    "static/media/apple-black-logo.svg": "/static/media/apple-black-logo.2af17b1b0887cd56c998.svg",
+    "static/media/star.svg": "/static/media/star.4fabc2d97dfbdc6846d9.svg",
+    "index.html": "/index.html",
+    "static/media/star-active.svg": "/static/media/star-active.6086a57f36be8898bc3d.svg",
+    "main.336acd49.css.map": "/static/css/main.336acd49.css.map",
+    "main.748cce2f.js.map": "/static/js/main.748cce2f.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.336acd49.css",
+    "static/js/main.748cce2f.js"
+  ]
+}
