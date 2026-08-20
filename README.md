@@ -122,7 +122,7 @@ npm install
 Start a database:
 
 ```bash
-docker run -d --name euphoria-mongo -p 27017:27017 -v euphoria-mongo:/data/db mongo:8.0
+docker run -d --name euphoria-mongo -p 27017:27017 -v euphoria-mongo:/data/db mongo:8.0.4
 ```
 
 Configure the API. This is the minimum that boots; everything else has a default:
